@@ -1,5 +1,8 @@
 # Open Soundcraft MIDI
 
+> [!CAUTION]
+> The code was completely written by AI. Use at your own risk.
+
 **Beta · Version 0.4.0-beta.3 · MIT License**
 
 Open Soundcraft MIDI maps MIDI controllers to the controls on a Soundcraft Ui mixer web interface. The mixer is controlled directly through the browser tab that serves its user interface; no additional local service is required.
