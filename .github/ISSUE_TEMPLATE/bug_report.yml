@@ -1,0 +1,42 @@
+name: Bug report
+description: Report an issue with the mixer web interface integration or MIDI feedback
+title: "bug: "
+body:
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Target backend
+      options:
+        - Soundcraft Ui mixer web interface
+        - Soundcraft Ui12 web interface
+        - Soundcraft Ui16 web interface
+        - Soundcraft Ui24R web interface
+        - Other / not sure
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 131 / Edge 131
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11 / macOS / Linux
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the steps and expected versus actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant error messages or logs
+      description: Remove IP addresses, tokens, passwords and other private information before posting.

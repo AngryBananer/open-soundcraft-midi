@@ -1,0 +1,38 @@
+name: Beta release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*-beta*'
+
+permissions:
+  contents: write
+
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax and manifest checks
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Package extension source
+        shell: bash
+        run: |
+          mkdir -p dist
+          zip -r "dist/open-soundcraft-midi-${GITHUB_REF_NAME}.zip" . \
+            -x '.git/*' 'dist/*' 'node_modules/*' '*.zip'
+      - name: Publish GitHub pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Open Soundcraft MIDI ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          files: dist/open-soundcraft-midi-${{ github.ref_name }}.zip
+          prerelease: true
+          generate_release_notes: true

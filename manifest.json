@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Open Soundcraft MIDI",
+  "version": "0.4.0",
+  "description": "Open-source MIDI control and feedback for browser-accessible Soundcraft Ui mixer interfaces.",
+  "minimum_chrome_version": "110",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Soundcraft MIDI controller"
+  }
+}

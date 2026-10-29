@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest a MIDI mapping, feedback or mixer web-interface feature
+title: "feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+      description: Describe the workflow you want to improve.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain the desired controller action and expected mixer behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include controller/model details if relevant. Do not include passwords or other sensitive connection details.
+    validations:
+      required: false
