@@ -4,7 +4,50 @@
   const PREFIX = '[Open Soundcraft MIDI]';
   if (window.__openSoundcraftMidiContentInstalled) return;
   window.__openSoundcraftMidiContentInstalled = true;
+  const PAGE_EVENT_SOURCE = 'open-soundcraft-midi-page-bridge';
+  let extensionRuntimeAvailable = true;
+
+  function isInvalidatedExtensionContext(error) {
+    const message = String(error && (error.message || error) || '');
+    return /extension context invalidated|context invalidated/i.test(message);
+  }
+
+  // Extension reloads invalidate content-script contexts while the page may
+  // remain open. sendMessage can throw synchronously in that state, before a
+  // Promise is returned, so a trailing .catch() alone is not sufficient.
+  function safeRuntimeSendMessage(message, options = {}) {
+    if (!extensionRuntimeAvailable) return Promise.resolve(undefined);
+    try {
+      const runtime = chrome && chrome.runtime;
+      if (!runtime || !runtime.id || typeof runtime.sendMessage !== 'function') {
+        extensionRuntimeAvailable = false;
+        return Promise.resolve(undefined);
+      }
+      const pending = runtime.sendMessage(message);
+      if (pending && typeof pending.then === 'function') {
+        return pending.catch((error) => {
+          if (isInvalidatedExtensionContext(error)) extensionRuntimeAvailable = false;
+          else if (options.warn) console.warn(PREFIX, error);
+          return undefined;
+        });
+      }
+      return Promise.resolve(pending);
+    } catch (error) {
+      if (isInvalidatedExtensionContext(error)) extensionRuntimeAvailable = false;
+      else if (options.warn) console.warn(PREFIX, error);
+      return Promise.resolve(undefined);
+    }
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.source !== window || !event.data || event.data.source !== PAGE_EVENT_SOURCE || event.data.type !== 'PARAMETER_CHANGED') return;
+    if (typeof event.data.key !== 'string' || !event.data.key) return;
+    void safeRuntimeSendMessage({
+      type: 'MIXER_PARAMETER_CHANGED', origin: location.origin, key: event.data.key, value: event.data.value
+    });
+  });
   let picker = null;
+  let continuousPickerMode = false;
   let pickerLanguage = 'de';
   let hoveredElement = null;
   let previousOutline = null;
@@ -114,19 +157,31 @@
     return null;
   }
 
+  function domState(element) {
+    if (!element) return null;
+    if (element instanceof HTMLInputElement && ['checkbox', 'radio'].includes(element.type)) return Boolean(element.checked);
+    for (const attribute of ['aria-pressed', 'aria-checked', 'data-state']) {
+      const value = element.getAttribute(attribute);
+      if (value === 'true' || value === '1' || value === 'on' || value === 'checked') return true;
+      if (value === 'false' || value === '0' || value === 'off' || value === 'unchecked') return false;
+    }
+    return null;
+  }
+
   function setStatusBanner() {
     if (!picker) return;
     picker.banner.textContent = pickerLanguage === 'en' ? 'MIDI target: click a fader, button, switch or web control. Press ESC to cancel.' : 'MIDI-Ziel: Klicke auf einen Fader, Button, Schalter oder ein Webseiten-Steuerelement. ESC bricht ab.';
   }
 
-  function teardownPicker() {
-    if (!picker) return;
-    document.removeEventListener('pointerdown', onPickerPointerDown, true);
-    document.removeEventListener('mousedown', onPickerMouseDown, true);
-    document.removeEventListener('keydown', onPickerKeyDown, true);
-    picker.host.remove();
-    picker = null;
-    document.documentElement.style.cursor = '';
+  function teardownPicker(options = {}) {
+    if (picker) {
+      document.removeEventListener('pointerdown', onPickerPointerDown, true);
+      document.removeEventListener('mousedown', onPickerMouseDown, true);
+      picker.host.remove();
+      picker = null;
+      document.documentElement.style.cursor = '';
+    }
+    if (options.endSession === true) continuousPickerMode = false;
   }
 
   function isPickerChrome(element) {
@@ -152,7 +207,7 @@
         clientX: Number(event.clientX), clientY: Number(event.clientY)
       };
       teardownPicker();
-      chrome.runtime.sendMessage({ type: 'TARGET_PICKED', target }).catch((error) => console.warn(PREFIX, error));
+      void safeRuntimeSendMessage({ type: 'TARGET_PICKED', target }, { warn: true });
       return;
     }
 
@@ -166,23 +221,29 @@
     };
     if (!domTarget.selector) { setStatusBanner(); return; }
     teardownPicker();
-    chrome.runtime.sendMessage({
+    void safeRuntimeSendMessage({
       type: 'TARGET_PICKED',
       target: { pageX: Number(event.pageX), pageY: Number(event.pageY), clientX: Number(event.clientX), clientY: Number(event.clientY), domTarget }
-    }).catch((error) => console.warn(PREFIX, error));
+    }, { warn: true });
   }
 
   function onPickerKeyDown(event) {
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && (picker || continuousPickerMode)) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      teardownPicker();
-      chrome.runtime.sendMessage({ type: 'PICKER_CANCELLED' }).catch(() => {});
+      teardownPicker({ endSession: true });
+      void safeRuntimeSendMessage({ type: 'PICKER_CANCELLED' });
     }
   }
 
-  function startPicker(language = 'de') {
-    teardownPicker();
+  // Keep ESC active even after a target is clicked and the overlay is removed.
+  // This lets users stop the continuous pick -> MIDI Learn -> pick workflow
+  // while focus is on either the mixer page or the Side Panel.
+  document.addEventListener('keydown', onPickerKeyDown, true);
+
+  function startPicker(language = 'de', continuous = false) {
+    teardownPicker({ endSession: true });
+    continuousPickerMode = continuous === true;
     pickerLanguage = language === 'en' ? 'en' : 'de';
     const host = document.createElement('div');
     host.id = 'open-soundcraft-midi-picker-host';
@@ -201,7 +262,6 @@
     document.documentElement.style.cursor = 'crosshair';
     document.addEventListener('pointerdown', onPickerPointerDown, true);
     document.addEventListener('mousedown', onPickerMouseDown, true);
-    document.addEventListener('keydown', onPickerKeyDown, true);
   }
 
   function findSliderSurface(element) {
@@ -283,12 +343,12 @@
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!message || typeof message.type !== 'string') return false;
     if (message.type === 'START_PICKER') {
-      startPicker(message.language);
+      startPicker(message.language, message.continuous === true);
       sendResponse({ ok: true });
       return false;
     }
     if (message.type === 'CANCEL_PICKER') {
-      teardownPicker();
+      teardownPicker({ endSession: true });
       sendResponse({ ok: true });
       return false;
     }
@@ -300,7 +360,7 @@
       const values = (Array.isArray(message.targets) ? message.targets : []).map((item) => {
         let element = null;
         try { element = item.target && document.querySelector(item.target.selector); } catch (_) { /* Invalid selector. */ }
-        return { id: item.id, value: domValue(element) };
+        return { id: item.id, value: domValue(element), state: domState(element) };
       });
       sendResponse({ ok: true, values });
       return false;

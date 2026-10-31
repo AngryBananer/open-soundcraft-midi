@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Open Soundcraft MIDI – MIDI-Berechtigung</title>
+  <style>
+    :root{color-scheme:dark;--bg:#111318;--panel:#1a1d24;--border:#343946;--text:#edf0f6;--muted:#a4adbb;--accent:#63e6a0}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at top,#1b2029 0,var(--bg) 58%);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:22px}
+    main{width:min(100%,560px);padding:28px;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 12px 36px #0005}
+    h1{font-size:24px;margin:0 0 8px}p{color:var(--muted);margin:8px 0 18px}button{border:1px solid var(--accent);background:var(--accent);color:#082013;font:inherit;font-weight:700;border-radius:9px;padding:11px 16px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}
+    #status{margin-top:16px;padding:12px;border-radius:8px;background:#14171d;border-left:3px solid #6b7484;overflow-wrap:anywhere;font-size:14px}#status.success{border-left-color:var(--accent);color:#c7f9db}#status.error{border-left-color:#ffbf69;color:#ffe0b2}.hint{font-size:12px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="title">MIDI-Berechtigung für Open Soundcraft MIDI</h1>
+    <p id="description">Edge zeigt die MIDI-Freigabe zuverlässiger in einem normalen Tab als in der Seitenleiste. Erteile hier den Zugriff. Danach verbindet sich die geöffnete Seitenleiste automatisch.</p>
+    <button id="request">MIDI-Zugriff anfragen</button>
+    <div id="status" role="status" aria-live="polite">MIDI-Berechtigung wird geprüft …</div>
+    <p class="hint" id="hint">Es werden hier keine MIDI-Eingänge geöffnet und keine MIDI-Daten verarbeitet.</p>
+  </main>
+  <script src="midi-permission.js"></script>
+</body>
+</html>

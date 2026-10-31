@@ -9,7 +9,7 @@ const source = fs.readFileSync(
   'utf8'
 );
 const start = source.indexOf('function soundcraftPageBridge(');
-const end = source.indexOf('\nconst $ = (id)', start);
+const end = source.indexOf('\nfunction installSoundcraftValueMonitor(', start);
 assert.notEqual(start, -1, 'soundcraftPageBridge function must exist');
 assert.notEqual(end, -1, 'soundcraftPageBridge end marker must exist');
 const bridgeSource = source.slice(start, end).trim();
@@ -17,6 +17,7 @@ const bridgeSource = source.slice(start, end).trim();
 function fixture() {
   const state = {
     widgets: {},
+    parameterValues: { 'i.7.aux.0.value': 0.25 },
     channels: {
       'i.7.': { mute: 0, solo: 0, mix: 0.25, pan: 0.4, name: 'Channel 7' },
       'i.8.': { mute: 0, solo: 0, mix: 0.5, pan: 0.5, name: 'Channel 8' }
@@ -122,7 +123,23 @@ function fixture() {
     onDown(px) { const item = Math.max(0, Math.min(1, Math.floor((px - this.x) / this.itemW))); this.state = item === this.state ? 1 - this.state : item; }
   });
   root.widgets.push(makeStrip('i.7.', 0, 7), makeStrip('i.8.', 100, 8), switchBox);
-  const windowMock = { widgets: [root], mWidgets: [], isSmall: false, Widget: { prototype: baseWidgetPrototype }, location: { origin: 'http://10.10.2.1', href: 'http://10.10.2.1/' }, getValue(key) { const channel = state.channels[key.replace(/(mix|pan|mute|solo|name)$/, '')]; const suffix = key.match(/(mix|pan|mute|solo|name)$/)?.[1]; return channel ? channel[suffix] : null; }, regUpdate() {} };
+  const windowMock = {
+    widgets: [root], mWidgets: [], isSmall: false, Widget: { prototype: baseWidgetPrototype },
+    location: { origin: 'http://10.10.2.1', href: 'http://10.10.2.1/' },
+    getValue(key) {
+      if (Object.prototype.hasOwnProperty.call(state.parameterValues, key)) return state.parameterValues[key];
+      const channel = state.channels[key.replace(/(mix|pan|mute|solo|name)$/, '')];
+      const suffix = key.match(/(mix|pan|mute|solo|name)$/)?.[1];
+      return channel ? channel[suffix] : null;
+    },
+    setValue(key, value) {
+      state.parameterValues[key] = value;
+      const channel = state.channels[key.replace(/(mix|pan|mute|solo|name)$/, '')];
+      const suffix = key.match(/(mix|pan|mute|solo|name)$/)?.[1];
+      if (channel && suffix) channel[suffix] = value;
+    },
+    regUpdate() {}
+  };
   const bridgeImpl = vm.runInNewContext(`(${bridgeSource})`, { window: windowMock, Number, String, Array, Object, Set, Math, Boolean });
   const bridge = (action, payload = {}) => bridgeImpl(action, { language: 'en', ...payload });
   return { state, bridge, windowMock, root };
@@ -276,4 +293,28 @@ test('control labels are localized by the selected UI language', () => {
   assert.equal(recordDe.target.controlLabel, 'Aufnahme');
   const recordEn = bridge('inspect', { pageX: 110, pageY: 20, language: 'en' });
   assert.equal(recordEn.target.controlLabel, 'Record');
+});
+
+
+test('direct Soundcraft parameter targets control hidden Aux Send faders', () => {
+  const { state, bridge } = fixture();
+  const target = { backend: 'web-parameter', parameterKey: 'i.7.aux.0.value', key: 'i.7.aux.0.value' };
+  const result = bridge('apply', { target, mode: 'fader', value: 96 });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.parameterValues['i.7.aux.0.value'], 96 / 127);
+});
+
+test('direct parameter targets toggle a backing boolean parameter without a visible widget', () => {
+  const { state, bridge } = fixture();
+  const target = { backend: 'web-parameter', parameterKey: 'i.8.mute', key: 'i.8.mute' };
+  assert.equal(bridge('apply', { target, mode: 'toggle', value: 127, pressed: true }).ok, true);
+  assert.equal(state.channels['i.8.'].mute, 1);
+});
+
+test('direct parameter target labels use the current renamed channel name', () => {
+  const { state, bridge } = fixture();
+  state.channels['i.7.'].name = 'Drum Bus';
+  const target = { backend: 'web-parameter', parameterKey: 'i.7.aux.0.value', key: 'i.7.aux.0.value', channelPrefix: 'i.7.', controlLabel: 'Aux 1 Send' };
+  const labels = bridge('labels', { targets: [{ id: 'hidden-aux', target }] });
+  assert.equal(labels[0].label, 'Drum Bus · Aux 1 Send');
 });

@@ -14,12 +14,12 @@ The repository includes a GitHub Actions workflow that tests and packages a beta
 4. Create and push a version tag matching `v*.*.*-beta*`, for example:
 
    ```sh
-   git tag v0.4.0-beta.3
-   git push origin v0.4.0-beta.3
+   git tag v0.5.0-beta.14
+   git push origin v0.5.0-beta.14
    ```
 
 5. The GitHub Actions workflow runs checks and creates a GitHub **pre-release** with a ZIP artifact. Check the workflow and release page before announcing it.
-6. For a later beta, update `package.json`, the controller footer, and `CHANGELOG.md`, then tag the matching version (for example `v0.4.0-beta.3`). The Chrome manifest version must remain a three-part numeric version (`0.4.0`) because Chrome requires a three-part numeric version in the manifest field.
+6. For a later beta, update `package.json`, the controller footer, and `CHANGELOG.md`, then tag the matching version (for example `v0.5.0-beta.14`). The Chrome manifest version must remain a three-part numeric version (`0.5.0`) because Chrome requires a three-part numeric version in the manifest field.
 
 ## Security notes
 

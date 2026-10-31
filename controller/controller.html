@@ -6,7 +6,7 @@
   <title>Open Soundcraft MIDI</title>
   <link rel="stylesheet" href="controller.css">
 </head>
-<body>
+<body class="side-panel">
   <main class="page">
     <header class="header">
       <div class="mark" aria-hidden="true">MIDI</div>
@@ -24,14 +24,20 @@
       </div>
     </header>
 
-    <section class="card">
+    <section id="midiSettingsCard" class="card">
       <div class="section-heading">
         <div><h2 data-i18n="midiDeviceTitle">1. MIDI-Gerät</h2><p data-i18n="midiDeviceDescription">Verbinde den Controller und wähle bei Bedarf einen MIDI-Ausgang für LED- und Motorfader-Feedback.</p></div>
-        <button id="connectMidiBtn" class="primary" data-i18n="connectMidi">MIDI verbinden</button>
+        <div class="button-pair midi-actions">
+          <button id="connectMidiBtn" class="primary" data-i18n="connectMidi">MIDI verbinden</button>
+          <button id="disconnectMidiBtn" class="secondary" disabled data-i18n="disconnectMidi">MIDI trennen / freigeben</button>
+        </div>
       </div>
       <div class="control-row">
         <label for="midiInputSelect" data-i18n="midiInput">MIDI-Eingang</label>
-        <select id="midiInputSelect"><option value="*" data-i18n="allMidiInputs">Alle MIDI-Eingänge</option></select>
+        <select id="midiInputSelect">
+          <option value="" data-i18n="noMidiInputSelected">Kein Eingang geöffnet</option>
+          <option value="*" data-i18n="allMidiInputsRisk">Alle Eingänge öffnen (nicht empfohlen)</option>
+        </select>
         <button id="refreshMidiBtn" class="secondary" data-i18n="refresh">Aktualisieren</button>
       </div>
       <div class="control-row">
@@ -53,36 +59,36 @@
       <div id="midiLog" class="midi-log" aria-live="polite"></div>
     </section>
 
-    <section class="card">
+    <section id="mixerSettingsCard" class="card">
       <div class="section-heading">
         <div><h2 data-i18n="mixerWebsiteTitle">2. Mixer-Webseite</h2><p data-i18n="mixerWebsiteDescription">Die Steuerung erfolgt direkt über die im Browser geöffnete Mixer-Weboberfläche – ohne separaten Bridge-Dienst.</p></div>
       </div>
-      <div class="control-row">
-        <label for="mixerAddressInput" data-i18n="mixerAddress">Mixer-Adresse</label>
-        <input id="mixerAddressInput" type="url" value="http://10.10.2.1" placeholder="http://10.10.2.1" autocomplete="url" spellcheck="false">
-        <button id="openMixerBtn" class="primary" data-i18n="openFindMixer">Mixer öffnen / finden</button>
-      </div>
-      <div class="note" data-i18n="permissionHint">Beim ersten Zugriff fragt der Browser nach Berechtigung für die angegebene Mixer-Adresse.</div>
-      <div class="control-row">
-        <label for="mixerTabSelect" data-i18n="mixerTab">Mixer-Tab</label>
-        <select id="mixerTabSelect"><option value="" data-i18n="noMixerTab">Kein Mixer-Tab gefunden</option></select>
-        <button id="refreshTabsBtn" class="secondary" data-i18n="refreshTabs">Tabs suchen</button>
+      <div class="control-row mixer-selection-row">
+        <button id="openMixerBtn" class="primary" disabled data-i18n="useCurrentTab">Aktuellen Tab als Mixer übernehmen</button>
+        <span id="mixerContextStatus" class="mixer-context-status" data-i18n="mixerNotSelected">Öffne zuerst die Mixer-Webseite und übernimm anschließend den aktuellen Tab.</span>
         <button id="pickTargetBtn" class="primary" disabled data-i18n="chooseTarget">Ziel wählen</button>
       </div>
-      <div id="targetStatus" class="note" data-i18n="targetHint">Wähle einen Tab und klicke danach auf den Fader, Button, Schalter oder ein anderes Bedienelement.</div>
+      <div class="note" data-i18n="permissionHint">Beim ersten Zugriff fragt der Browser nach Berechtigung für die Mixer-Webseite.</div>
+      <div id="targetStatus" class="note" data-i18n="targetHint">Übernimm den Mixer-Tab und klicke danach auf den Fader, Button, Schalter oder ein anderes Bedienelement.</div>
+      <details class="parameter-builder">
+        <summary data-i18n="parameterTargetTitle">Direktparameter-Ziel (auch unsichtbare Fader)</summary>
+        <div class="parameter-builder-grid">
+          <label for="parameterKeyInput" data-i18n="parameterKey">Soundcraft-Parameter</label>
+          <input id="parameterKeyInput" type="text" spellcheck="false" placeholder="i.7.aux.0.value">
+          <label for="parameterLabelInput" data-i18n="parameterLabel">Anzeigename (optional)</label>
+          <input id="parameterLabelInput" type="text" placeholder="Kanal 7 · Aux 1 Send">
+          <button id="addParameterTargetBtn" class="secondary" data-i18n="addParameterTarget">Parameter-Ziel übernehmen</button>
+          <small data-i18n="parameterHelp">Beispiele: i.7.mix (Kanal-Fader), i.7.aux.0.value (Aux-Send 1), a.0.mix (Aux-Master).</small>
+        </div>
+      </details>
       <div class="control-row target-row">
-        <label for="mappingModeSelect" data-i18n="mappingType">Zuordnungstyp</label>
-        <select id="mappingModeSelect">
-          <option value="fader" data-i18n="faderAbsolute">Fader / Wert (absoluter MIDI-Wert)</option>
-          <option value="toggle" data-i18n="buttonToggle">Taste (Toggle)</option>
-        </select>
         <button id="armLearnBtn" class="primary" disabled data-i18n="startMidiLearn">MIDI Learn starten</button>
         <button id="cancelLearnBtn" class="secondary" disabled data-i18n="cancel">Abbrechen</button>
       </div>
       <div id="learnStatus" class="note" data-i18n="learnHint">Ziel auswählen und MIDI Learn starten. Für Werte einen CC-Regler oder Pitch Bend, für Tasten einen MIDI-Taster verwenden.</div>
     </section>
 
-    <section class="card">
+    <section id="mappingsSettingsCard" class="card">
       <div class="section-heading">
         <div><h2 data-i18n="mappingsTitle">3. Zuordnungen</h2><p data-i18n="mappingsDescription">Profile werden lokal im Browser gespeichert und können als JSON gesichert werden.</p></div>
         <div class="button-pair">
@@ -95,11 +101,16 @@
     </section>
 
     <footer>
-      <strong>Open Soundcraft MIDI 0.4.0-beta.3</strong> · <span data-i18n="footerBeta">Open-Source-Beta für Browser-Mixer-Weboberflächen.</span>
+      <strong>Open Soundcraft MIDI 0.5.0-beta.14</strong> · <span data-i18n="footerBeta">Open-Source-Beta für Browser-Mixer-Weboberflächen.</span>
       <div data-i18n="footerDisclaimer">Unabhängiges Community-Projekt, nicht mit Soundcraft/HARMAN verbunden.</div>
     </footer>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </main>
+  <script src="../shared/apc-mini-mk2.js"></script>
+  <script src="../shared/feedback-colors.js"></script>
+  <script src="../shared/midi-device-profiles.js"></script>
+  <script src="../shared/mixer-tab-context.js"></script>
+  <script src="../shared/mapping-mode.js"></script>
   <script src="controller.js"></script>
 </body>
 </html>

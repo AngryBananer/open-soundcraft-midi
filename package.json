@@ -1,14 +1,14 @@
 {
   "name": "open-soundcraft-midi",
-  "version": "0.4.0-beta.3",
+  "version": "0.5.0-beta.14",
   "private": true,
-  "description": "Open-source MIDI controller and fader feedback for browser-accessible Soundcraft Ui mixer interfaces",
+  "description": "Open-source MIDI controller and bidirectional feedback for Soundcraft Ui mixer web interfaces",
   "license": "MIT",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "test": "node --test tests/*.test.cjs",
-    "check": "node --check background.js && node --check content/soundcraft-ui.js && node --check controller/controller.js && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json', 'utf8'))\""
+    "check": "node --check background.js && node --check background/midi-engine.js && node --check background/midi-worker.js && node --check shared/soundcraft-page-bridge.js && node --check midi-permission.js && node --check content/soundcraft-ui.js && node --check controller/controller.js && node --check shared/apc-mini-mk2.js && node --check shared/feedback-colors.js && node --check shared/midi-device-profiles.js && node --check shared/mixer-tab-context.js && node --check shared/mapping-mode.js && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json', 'utf8'))\" && node --check tests/content-runtime-guard.test.cjs && node --check tests/offscreen-background-engine.test.cjs"
   }
 }
