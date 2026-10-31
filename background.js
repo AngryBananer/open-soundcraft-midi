@@ -6,7 +6,13 @@ const OFFSCREEN_PATH = 'background/offscreen.html';
 const SELECTED_MIXER_CONTEXT_KEY = 'openSoundcraftMidiSelectedMixerContext';
 const MAPPINGS_KEY = 'openSoundcraftMidiMappings';
 const OFFSCREEN_AUTO_START_KEY = 'openSoundcraftMidiEngineEnabled';
-let offscreenCreating = null;
+let offscreenLifecycleQueue = Promise.resolve();
+
+function withOffscreenLifecycle(task) {
+  const next = offscreenLifecycleQueue.then(task, task);
+  offscreenLifecycleQueue = next.catch(() => {});
+  return next;
+}
 
 async function configureSidePanel() {
   try {
@@ -27,28 +33,57 @@ async function hasOffscreenDocument() {
   return false;
 }
 
+async function hasSelectedMixerContext() {
+  const stored = await chrome.storage.session.get(SELECTED_MIXER_CONTEXT_KEY);
+  return Number.isInteger(stored?.[SELECTED_MIXER_CONTEXT_KEY]?.tabId);
+}
+
 async function ensureOffscreenDocument() {
-  if (await hasOffscreenDocument()) return;
-  if (offscreenCreating) return offscreenCreating;
-  offscreenCreating = (async () => {
+  return withOffscreenLifecycle(async () => {
+    // Re-check inside the serialized lifecycle operation so a Mixer tab that
+    // closes during an in-flight command cannot leave a new engine behind.
+    if (!(await hasSelectedMixerContext())) return false;
+    if (await hasOffscreenDocument()) return true;
     try {
       await chrome.offscreen.createDocument({
         url: OFFSCREEN_PATH,
         reasons: ['WORKERS'],
-        justification: 'Keep the MIDI device connection and feedback engine running when the visible Side Panel is closed. A dedicated worker decodes MIDI events outside the panel UI.'
+        justification: 'Keep MIDI control and feedback running while the selected Mixer tab is open, even when the visible Side Panel is closed. A dedicated worker decodes MIDI events outside the panel UI.'
       });
     } catch (error) {
-      // Another event may have created the document between the context check
-      // and createDocument(). Treat that race as success only if it now exists.
+      // Treat a concurrent creation as success only if the document now exists.
       if (!(await hasOffscreenDocument())) throw error;
     }
-  })();
-  try { await offscreenCreating; }
-  finally { offscreenCreating = null; }
+    return true;
+  });
+}
+
+async function closeOffscreenDocumentIfNoMixer() {
+  return withOffscreenLifecycle(async () => {
+    // A newly selected Mixer may have appeared while a close was queued.
+    if (await hasSelectedMixerContext()) return false;
+    if (!(await hasOffscreenDocument())) return false;
+    await chrome.offscreen.closeDocument();
+    // Keep an already-open Side Panel in sync even though the Offscreen
+    // document (which normally publishes engine status) no longer exists.
+    try {
+      void chrome.runtime.sendMessage({
+        target: 'panel', type: 'ENGINE_STATUS', connected: false, state: 'idle',
+        inputs: [], outputs: [], selectedInputId: '', selectedOutputId: '',
+        learningArmed: false, continuousLearning: false, pendingTarget: null,
+        message: 'Selected Mixer is no longer available. Background MIDI engine stopped.'
+      }).catch(() => {});
+    } catch (_) { /* The Side Panel may be closed. */ }
+    return true;
+  });
 }
 
 async function sendEngineCommand(command, payload = {}) {
-  await ensureOffscreenDocument();
+  const engineAvailable = await ensureOffscreenDocument();
+  if (!engineAvailable) {
+    if (command === 'CONNECT') throw new Error('Open a Mixer tab and select it with “Open mixer” before connecting MIDI.');
+    return undefined;
+  }
   const response = await chrome.runtime.sendMessage({ target: 'offscreen-engine', type: 'ENGINE_COMMAND', command, payload });
   if (response && response.ok === false) throw new Error(response.error || `Background MIDI command failed: ${command}`);
   return response?.result;
@@ -299,6 +334,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'session' && changes[SELECTED_MIXER_CONTEXT_KEY]
+    && !Number.isInteger(changes[SELECTED_MIXER_CONTEXT_KEY].newValue?.tabId)) {
+    // Also handle context removal initiated by the Side Panel's stale-tab
+    // recovery path, not only the Service Worker's tab event handlers.
+    void closeOffscreenDocumentIfNoMixer().catch((error) => {
+      console.warn('[Open Soundcraft MIDI] Could not stop the idle background engine:', error);
+    });
+    return;
+  }
   if (areaName !== 'local') return;
   const updates = {};
   if (changes[MAPPINGS_KEY]) updates.mappings = changes[MAPPINGS_KEY].newValue || [];
@@ -314,7 +358,11 @@ chrome.tabs.onRemoved.addListener((tabId) => {
     const stored = await chrome.storage.session.get(SELECTED_MIXER_CONTEXT_KEY);
     if (stored?.[SELECTED_MIXER_CONTEXT_KEY]?.tabId === tabId) {
       await chrome.storage.session.remove(SELECTED_MIXER_CONTEXT_KEY);
-      await sendEngineCommand('TAB_REMOVED', { tabId }).catch(() => {});
+      // Closing the selected Mixer terminates the Offscreen Document itself.
+      // This releases its MIDI references and stops its worker and polling loops.
+      await closeOffscreenDocumentIfNoMixer().catch((error) => {
+        console.warn('[Open Soundcraft MIDI] Could not stop the idle background engine:', error);
+      });
     }
   })();
 });
@@ -326,19 +374,61 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (stored?.[SELECTED_MIXER_CONTEXT_KEY]?.tabId !== tabId) return;
     let context = null;
     try {
-      if (tab?.url && /^https?:/i.test(tab.url)) context = { tabId, url: tab.url, title: tab.title || tab.url, origin: new URL(tab.url).origin };
-    } catch (_) { /* Ignore invalid tab URLs. */ }
-    if (context) await chrome.storage.session.set({ [SELECTED_MIXER_CONTEXT_KEY]: context });
-    await sendEngineCommand('TAB_UPDATED', { tabId, context }).catch(() => {});
+      if (tab?.url && /^https?:/i.test(tab.url)) {
+        const nextUrl = new URL(tab.url);
+        const previousOrigin = stored?.[SELECTED_MIXER_CONTEXT_KEY]?.origin
+          || new URL(stored?.[SELECTED_MIXER_CONTEXT_KEY]?.url || '').origin;
+        // The pinned Mixer must remain on the same website origin. Navigating
+        // the tab to another site is equivalent to closing the selected Mixer.
+        if (!previousOrigin || nextUrl.origin === previousOrigin) {
+          context = { tabId, url: tab.url, title: tab.title || tab.url, origin: nextUrl.origin };
+        }
+      }
+    } catch (_) { /* Ignore invalid tab URLs and malformed stored context. */ }
+    if (context) {
+      await chrome.storage.session.set({ [SELECTED_MIXER_CONTEXT_KEY]: context });
+      await sendEngineCommand('TAB_UPDATED', { tabId, context }).catch(() => {});
+    } else {
+      await chrome.storage.session.remove(SELECTED_MIXER_CONTEXT_KEY);
+      await closeOffscreenDocumentIfNoMixer().catch((error) => {
+        console.warn('[Open Soundcraft MIDI] Could not stop the idle background engine:', error);
+      });
+    }
   })();
 });
 
 async function restoreBackgroundEngine() {
   try {
-    const saved = await chrome.storage.local.get(OFFSCREEN_AUTO_START_KEY);
+    const [saved, stored] = await Promise.all([
+      chrome.storage.local.get(OFFSCREEN_AUTO_START_KEY),
+      chrome.storage.session.get(SELECTED_MIXER_CONTEXT_KEY)
+    ]);
+    const context = stored?.[SELECTED_MIXER_CONTEXT_KEY];
+    let mixerTabAvailable = false;
+    if (Number.isInteger(context?.tabId)) {
+      try {
+        const tab = await chrome.tabs.get(context.tabId);
+        if (tab?.url && /^https?:/i.test(tab.url)) {
+          const currentOrigin = new URL(tab.url).origin;
+          const previousOrigin = context.origin || new URL(context.url || '').origin;
+          mixerTabAvailable = !previousOrigin || currentOrigin === previousOrigin;
+          if (mixerTabAvailable) {
+            await chrome.storage.session.set({
+              [SELECTED_MIXER_CONTEXT_KEY]: {
+                tabId: context.tabId, url: tab.url, title: tab.title || tab.url, origin: currentOrigin
+              }
+            });
+          }
+        }
+      } catch (_) { mixerTabAvailable = false; }
+    }
+    if (!mixerTabAvailable) {
+      await chrome.storage.session.remove(SELECTED_MIXER_CONTEXT_KEY);
+      await closeOffscreenDocumentIfNoMixer();
+      return;
+    }
     if (saved?.[OFFSCREEN_AUTO_START_KEY] === true) {
-      // Creating the document restores the engine; midi-engine.js reads the
-      // persisted auto-start flag and reconnects after its state is loaded.
+      // Restore a previous MIDI session only while its selected Mixer tab exists.
       await ensureOffscreenDocument();
     }
   } catch (error) {

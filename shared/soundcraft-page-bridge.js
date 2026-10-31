@@ -595,7 +595,7 @@ function installSoundcraftValueMonitor(keys) {
   // Soundcraft uses setValue/setValueX for local control changes and
   // putValue for values received from the mixer transport. Wrap all three so
   // updates are pushed to the side panel even when the mixer tab is in the
-  // background. The 500 ms readback remains only as a compatibility fallback.
+  // background. A 250 ms readback remains only as a compatibility fallback.
   for (const functionName of ['putValue', 'setValue', 'setValueX']) {
     const original = window[functionName];
     if (typeof original !== 'function' || original.__openSoundcraftMidiWrapped) continue;

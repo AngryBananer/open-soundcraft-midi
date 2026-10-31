@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0-beta.15
+
+- Based this release on the Beta 14 codebase.
+- Create the hidden Offscreen MIDI engine only while an explicitly selected Mixer tab exists; Side Panel startup without a Mixer no longer starts the background runtime.
+- Automatically close the Offscreen Document when the selected Mixer tab is closed or navigated away from HTTP/HTTPS, terminating its decoder worker and feedback/monitor polling loops.
+- Restore a previous MIDI session only when the selected Mixer tab is still available; preserve the saved MIDI device selection and auto-reconnect preference when the engine is stopped because the Mixer closed.
+- Reduce fallback feedback polling from 1,500 ms to 250 ms and reduce monitor re-install retries from 3,000 ms to 1,000 ms. Event-driven Soundcraft parameter updates remain the primary feedback path.
+- Add lifecycle and feedback-interval regression tests.
+
+
 
 ## 0.5.0-beta.14
 

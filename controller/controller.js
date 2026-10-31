@@ -593,7 +593,7 @@ function installSoundcraftValueMonitor(keys) {
   // Soundcraft uses setValue/setValueX for local control changes and
   // putValue for values received from the mixer transport. Wrap all three so
   // updates are pushed to the side panel even when the mixer tab is in the
-  // background. The 500 ms readback remains only as a compatibility fallback.
+  // background. A 250 ms readback remains only as a compatibility fallback.
   for (const functionName of ['putValue', 'setValue', 'setValueX']) {
     const original = window[functionName];
     if (typeof original !== 'function' || original.__openSoundcraftMidiWrapped) continue;
@@ -1522,7 +1522,7 @@ function cancelLearn() {
 }
 
 function exportMappings() {
-  const blob = new Blob([JSON.stringify({ version: '0.5.0-beta.14', mappings }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ version: '0.5.0-beta.15', mappings }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a');
   anchor.href = url; anchor.download = 'open-soundcraft-midi-profile.json'; anchor.click(); URL.revokeObjectURL(url); toast(t('exportDone'));
 }
@@ -1731,10 +1731,25 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
   if (tabId === selectedMixerTabId && (changeInfo.url || changeInfo.status === 'complete')) {
     const context = activeTabContextFromTab(tab);
-    if (context) {
+    let sameOrigin = false;
+    try {
+      sameOrigin = Boolean(context && selectedMixerContext?.url
+        && new URL(context.url).origin === new URL(selectedMixerContext.url).origin);
+    } catch (_) { sameOrigin = false; }
+    if (context && sameOrigin) {
       selectedMixerContext = context;
       void chrome.storage.session.set({ [SELECTED_MIXER_CONTEXT_KEY]: context });
       updateMixerContextDisplay();
+    } else {
+      selectedMixerTabId = null;
+      selectedMixerContext = null;
+      // The Service Worker owns the session-context removal and Offscreen shutdown.
+      if (continuousLearning || targetPickerActive || midiLearnArmed || pendingTarget) {
+        stopLearningSession({ fromPage: false, quiet: true });
+      }
+      updateMixerContextDisplay();
+      updateLearnButtons();
+      setNote(els.targetStatus, t('mixerNotSelected'), 'warning');
     }
   }
 });
@@ -1746,7 +1761,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   if (tabId === selectedMixerTabId) {
     selectedMixerTabId = null;
     selectedMixerContext = null;
-    void chrome.storage.session.remove(SELECTED_MIXER_CONTEXT_KEY);
+    // The Service Worker clears the stored context and stops the Offscreen engine.
     updateMixerContextDisplay();
     updateLearnButtons();
     setNote(els.targetStatus, t('noMatchingTab'), 'warning');

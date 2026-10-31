@@ -48,7 +48,7 @@ test('Background creates a single Offscreen Document with the WORKERS lifetime r
   assert.match(background, /chrome\.offscreen\.createDocument/);
   assert.match(background, /reasons:\s*\['WORKERS'\]/);
   assert.match(background, /OFFSCREEN_DOCUMENT/);
-  assert.doesNotMatch(background, /chrome\.offscreen\.closeDocument/);
+  assert.match(background, /chrome\.offscreen\.closeDocument/);
 });
 
 test('Background routes engine RPC for storage, mapping apply and feedback polling', () => {
@@ -58,7 +58,7 @@ test('Background routes engine RPC for storage, mapping apply and feedback polli
   assert.match(background, /case 'READ_TARGET_VALUES'/);
   assert.match(background, /case 'REFRESH_MONITORS'/);
   assert.match(engine, /rpc\('APPLY_MAPPING'/);
-  assert.ok(engine.includes('setInterval(() => { void pollFeedback(); }, 1500)'));
+  assert.ok(engine.includes('setInterval(() => { void pollFeedback(); }, 250)'));
 });
 
 test('background engine waits for persistent state before accepting Side Panel commands', () => {
@@ -133,10 +133,10 @@ test('Offscreen engine uses only runtime extension APIs and routes privileged wo
 
 
 test('Closing the Side Panel is only a UI lifecycle event; the Offscreen document is not closed on panel unload', () => {
-  assert.doesNotMatch(background, /chrome\.offscreen\.closeDocument\(/);
+  assert.match(background, /async function closeOffscreenDocumentIfNoMixer\(\)/);
   assert.match(background, /openPanelOnActionClick:\s*true/);
-  assert.match(engine, /setInterval\(\(\) => \{ void pollFeedback\(\); \}, 1500\)/);
-  assert.match(engine, /setInterval\(\(\) => \{ void refreshMonitors\(\); \}, 3000\)/);
+  assert.match(engine, /setInterval\(\(\) => \{ void pollFeedback\(\); \}, 250\)/);
+  assert.match(engine, /setInterval\(\(\) => \{ void refreshMonitors\(\); \}, 1000\)/);
   assert.doesNotMatch(controller, /window\.addEventListener\(['"]unload['"][\s\S]{0,500}DISCONNECT/);
 });
 

@@ -2,7 +2,8 @@
 
 > [!CAUTION]
 > The code was completely written by AI. Use at your own risk.
-**Beta · Version 0.5.0-beta.14 · MIT License**
+
+**Beta · Version 0.5.0-beta.15 · MIT License**
 
 Open Soundcraft MIDI maps MIDI controllers to controls on a Soundcraft Ui mixer web interface. The mixer is controlled directly through its browser tab; no additional local service is required.
 
@@ -22,7 +23,7 @@ The controller UI is available in **German and English**. This is an independent
 - Configurable active/inactive button LED colors. Color pickers show the current color; the last chosen colors are persisted and prefilled for new mappings. New mappings automatically preselect the LED feedback profile detected from the currently selected MIDI output (AKAI APC mini MK2 is detected by its Web MIDI port name/manufacturer; other devices use Generic MIDI). Existing mappings retain their manual profile choice.
 - Direct Soundcraft parameter mappings for controls that are not currently visible, including Aux Sends.
 - Chromium Side Panel opened and closed by clicking the extension toolbar icon. Click once to open the controller; click again to close the Side Panel and reclaim the mixer width. The full controller settings are shown whenever the Side Panel is open. Click **Open mixer** once to pin the exact active browser tab as the mixer target.
-- Event-driven fader and button feedback by monitoring Soundcraft parameter updates, with a slower polling fallback.
+- Event-driven fader and button feedback by monitoring Soundcraft parameter updates, with a 250 ms polling fallback for firmware variants and DOM-only controls.
 - Per-mapping MIDI feedback enable, output channel, and CC number. Output format can be Automatic, 7-bit CC or 14-bit Pitch Bend.
 - Locally stored mappings with JSON import/export.
 - Runtime permission prompts for the mixer website host.
@@ -36,8 +37,8 @@ Requirements: a recent desktop version of Chrome or Edge and a MIDI controller. 
 3. Enable **Developer mode** and choose **Load unpacked**.
 4. Select the extracted directory containing `manifest.json`.
 5. Open the mixer web interface in a browser tab, then click the extension toolbar icon to open the Side Panel.
-6. In the Side Panel, click **Open mixer**. The extension reads the active tab's HTTP/HTTPS URL, requests access for that website origin, and pins that exact tab as the mixer target. Switching to other browser tabs does not change the pinned mixer. If you close the selected mixer tab, assign a new one with the same button.
-7. On first MIDI setup, click **Request MIDI permission in new tab** in the Side Panel. In the dedicated permission tab, click **Request MIDI access** so the API call runs directly in a user gesture. After the browser grants access, return to the Side Panel and click **Connect MIDI**. Later starts use the normal **Connect MIDI** button. The MIDI session remains alive when the Side Panel is closed, and can be stopped explicitly with **Disconnect MIDI**. MIDI permission applies to the extension origin (`chrome-extension://…`), not the mixer IP. Check `edge://settings/content/midiDevices` and `edge://policy` if the request is denied.
+6. In the Side Panel, click **Open mixer**. The extension reads the active tab's HTTP/HTTPS URL, requests access for that website origin, and pins that exact tab as the mixer target. Switching to other browser tabs does not change the pinned mixer. Closing the selected mixer tab stops the hidden MIDI background engine; assign a new one with the same button to start it again.
+7. On first MIDI setup, click **Request MIDI permission in new tab** in the Side Panel. In the dedicated permission tab, click **Request MIDI access** so the API call runs directly in a user gesture. After the browser grants access, return to the Side Panel and click **Connect MIDI**. Later starts use the normal **Connect MIDI** button. The MIDI session remains alive when the Side Panel is closed. It is stopped automatically when the selected Mixer tab is closed; selecting another Mixer starts the background runtime again. **Disconnect MIDI** remains available for a manual stop. MIDI permission applies to the extension origin (`chrome-extension://…`), not the mixer IP. Check `edge://settings/content/midiDevices` and `edge://policy` if the request is denied.
 8. Click **Choose target**, then click the desired fader handle, button, switch, or another control in the pinned mixer tab. The control type is detected from the selected mixer widget; there is no Fader/Button type dropdown.
 9. MIDI Learn starts automatically. Move the desired CC knob/fader or press a MIDI button. After the mapping is saved, target picking automatically opens again for the next control.
 
@@ -51,11 +52,11 @@ Use **Direct Soundcraft parameter target** instead of target picking. This binds
 
 No mixer website access is granted automatically: when you click **Open mixer**, the extension requests permission for that HTTP/HTTPS origin. Permission is scoped to that origin. The selected tab remains pinned when you switch to other browser tabs. The mixer page must be reachable from the computer running the browser.
 
-After completing setup, click the extension toolbar icon to close the Side Panel and reclaim the mixer width. Click the same icon again to reopen the full controller. The browser performs this toggle using Chromium’s native `openPanelOnActionClick` behaviour. MIDI input handling, mapping execution, LED/fader feedback and Mixer monitoring run in a hidden Offscreen Document, independent of the Side Panel. Closing the Side Panel no longer stops the MIDI engine. The extension Service Worker routes browser-tab operations; it does not own the Web MIDI ports.
+After completing setup, click the extension toolbar icon to close the Side Panel and reclaim the mixer width. Click the same icon again to reopen the full controller. The browser performs this toggle using Chromium’s native `openPanelOnActionClick` behaviour. MIDI input handling, mapping execution, LED/fader feedback and Mixer monitoring run in a hidden Offscreen Document, independent of the Side Panel. Closing the Side Panel does not stop the MIDI engine, but closing the selected Mixer tab does. The engine is created again when a new Mixer tab is selected. The extension Service Worker routes browser-tab operations; it does not own the Web MIDI ports.
 
 ## Background runtime and Side Panel lifecycle
 
-Web MIDI ports, MIDI Learn, mapping execution, LED / motor-fader feedback and mixer-value polling are owned by the hidden Offscreen Document, not by the visible Side Panel. The Side Panel can therefore be closed with the toolbar icon without stopping MIDI control. The Offscreen Document is created by the Manifest V3 Service Worker and uses the `WORKERS` lifetime reason for its decoder worker. It remains active while the browser profile is running; closing the browser, disabling/reloading the extension, revoking MIDI permission or a browser/OS crash will stop the session. The Side Panel is only a UI client and receives status updates when it is open again.
+Web MIDI ports, MIDI Learn, mapping execution, LED / motor-fader feedback and mixer-value polling are owned by the hidden Offscreen Document, not by the visible Side Panel. The Side Panel can therefore be closed with the toolbar icon without stopping MIDI control. The Offscreen Document is created by the Manifest V3 Service Worker only while an explicitly selected Mixer tab exists, and uses the `WORKERS` lifetime reason for its decoder worker. Closing the selected Mixer tab (or navigating it away from HTTP/HTTPS) closes the Offscreen Document, stops its polling timers and releases its MIDI references. Selecting another Mixer tab creates the runtime again; if MIDI was connected before the previous Mixer closed, it reconnects automatically. Closing the browser, disabling/reloading the extension, revoking MIDI permission or a browser/OS crash also stops the session. The Side Panel is only a UI client and receives status updates when it is open again.
 
 The Offscreen Document can use web platform APIs such as Web MIDI, but Chrome exposes only the `chrome.runtime` extension API from that context. Storage, tab access, scripting and page operations are therefore routed through the Service Worker using message RPC. This keeps the actual native MIDI session in one hidden Window context while keeping privileged tab operations in the Service Worker.
 
@@ -66,7 +67,7 @@ The Offscreen Document can use web platform APIs such as Web MIDI, but Chrome ex
 3. For each mapping, leave **Feedback** enabled or configure its output channel and CC number.
 4. Choose **Automatic** to use CC feedback for CC input mappings and Pitch Bend feedback for Pitch Bend mappings. Select a fixed format if your controller requires it.
 
-For Soundcraft parameter targets, the extension pushes changes to the Side Panel by observing the mixer page's `setValue`, `setValueX` and `putValue` functions. A slower polling pass remains as a fallback for firmware variants and DOM-only controls. MIDI output is sent only when the quantized value or button state changes. CC feedback is the common choice for LED rings; motor-fader and LED protocols differ between controllers, so match the channel/message type required by the device. The generic feedback is not a device-specific SysEx implementation. A MIDI controller may echo outgoing messages into its input; the extension suppresses recently sent matching feedback messages to reduce loops.
+For Soundcraft parameter targets, the extension pushes changes to the Side Panel by observing the mixer page's `setValue`, `setValueX` and `putValue` functions. A 250 ms polling pass remains as a fallback for firmware variants and DOM-only controls; Soundcraft parameter updates are sent immediately through the event monitor when available. MIDI output is sent only when the quantized value or button state changes. CC feedback is the common choice for LED rings; motor-fader and LED protocols differ between controllers, so match the channel/message type required by the device. The generic feedback is not a device-specific SysEx implementation. A MIDI controller may echo outgoing messages into its input; the extension suppresses recently sent matching feedback messages to reduce loops.
 
 ### AKAI APC mini MK2 button LEDs
 
@@ -111,7 +112,7 @@ Tests exercise a simulated mixer widget tree, including Mute, Solo, generic butt
 
 ## Beta releases
 
-A maintainer can publish a GitHub pre-release by pushing a tag such as `v0.5.0-beta.14`. GitHub Actions runs syntax checks and tests, packages the source, and attaches a ZIP to the pre-release. See [`docs/RELEASING.md`](docs/RELEASING.md).
+A maintainer can publish a GitHub pre-release by pushing a tag such as `v0.5.0-beta.15`. GitHub Actions runs syntax checks and tests, packages the source, and attaches a ZIP to the pre-release. See [`docs/RELEASING.md`](docs/RELEASING.md).
 
 ## License
 

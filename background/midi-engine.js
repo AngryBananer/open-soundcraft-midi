@@ -618,8 +618,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     resolveEngineReady(true);
     publishStatus({ state: 'idle', message: 'Background MIDI engine ready.' });
     if (stored?.[ENGINE_KEYS.autoStart] === true) void connectMidi();
-    setInterval(() => { void pollFeedback(); }, 1500);
-    setInterval(() => { void refreshMonitors(); }, 3000);
+    // Soundcraft parameter events are the primary feedback path. Polling is
+    // only a fast compatibility fallback for firmware/DOM controls.
+    setInterval(() => { void pollFeedback(); }, 250);
+    setInterval(() => { void refreshMonitors(); }, 1000);
   } catch (error) {
     rejectEngineReady(error);
     console.error('[Open Soundcraft MIDI] Background engine initialization failed:', error);

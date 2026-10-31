@@ -1,6 +1,6 @@
 {
   "name": "open-soundcraft-midi",
-  "version": "0.5.0-beta.14",
+  "version": "0.5.0-beta.15",
   "private": true,
   "description": "Open-source MIDI controller and bidirectional feedback for Soundcraft Ui mixer web interfaces",
   "license": "MIT",
