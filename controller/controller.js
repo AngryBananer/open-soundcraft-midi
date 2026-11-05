@@ -1588,7 +1588,7 @@ function cancelLearn() {
 }
 
 function exportMappings() {
-  const blob = new Blob([JSON.stringify({ version: '0.5.0-beta.18', mappings }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ version: '0.6.0', mappings }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a');
   anchor.href = url; anchor.download = 'open-soundcraft-midi-profile.json'; anchor.click(); URL.revokeObjectURL(url); toast(t('exportDone'));
 }

@@ -2,7 +2,7 @@
 
 > ⚠️ **Warnung – KI-generierter Code:** Der gesamte Code dieses Projekts wurde vollständig mit KI geschrieben. Er wurde nicht unabhängig vollständig geprüft oder auditiert. Die Erweiterung ist Beta-Software. Nutzung auf eigene Verantwortung; teste sie vor einem Live-Einsatz und sichere deine Profile regelmäßig.
 
-**Version:** 0.5.0-beta.20 · **Lizenz:** MIT
+**Version:** 0.6.0 · **Lizenz:** MIT
 
 Open Soundcraft MIDI verbindet einen MIDI-Controller mit der Weboberfläche eines Soundcraft-Ui-Mixers. Die Steuerung erfolgt über den geöffneten Mixer-Tab im Browser.
 

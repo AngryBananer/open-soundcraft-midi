@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 — 2026-11-05
+
+- Set the extension, package, UI footer and exported mapping version to `0.6.0`. No functional behavior was changed.
+
 ## 0.5.0-beta.20
 
 - Fixed the MIDI event handler crash caused by calling an undefined `addLog()` function.
