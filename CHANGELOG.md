@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.5.0-beta.20
+
+- Fixed the MIDI event handler crash caused by calling an undefined `addLog()` function.
+- Restored the compact incoming-MIDI diagnostic log using the existing `midiLog` UI container and `log-row` styling.
+- Format received MIDI bytes as hexadecimal and render all device-provided text safely with `textContent`.
+- Bound the diagnostic log to the latest 12 messages so continuous MIDI input cannot grow the UI indefinitely.
+- Added regression coverage for the MIDI log helper and event-handler call site.
+
+## 0.5.0-beta.19
+
+- Remember the last selected MIDI input and output when the user disconnects MIDI manually.
+- Restore the remembered input/output selections on the next connection when those devices are available.
+- Preserve remembered device IDs while a controller is temporarily unplugged, so a later device refresh can reselect them.
+- Keep the remembered selection when saving unrelated MIDI preferences while a device is temporarily unavailable.
+- Added regression tests for disconnect/reconnect selection persistence and unavailable devices.
+
+## 0.5.0-beta.18
+
+- Added explicit per-profile feedback capabilities for button/pad LEDs and visible fader-value feedback.
+- Filtered the feedback-profile selector by mapping type; the APC mini MK2 profile is available only for button mappings.
+- Hide the profile selector when only one compatible profile exists.
+- Normalize existing and imported mappings that reference a profile incompatible with their mapping type back to Generic MIDI.
+- Detect the default feedback profile using both the selected MIDI output and the learned target mode.
+- Documented feedback capabilities and the APC mini MK2 limitation in the controller-developer guide.
+- Added regression tests for mode-aware profile detection, selection and legacy mapping normalization.
+
+## 0.5.0-beta.17
+
+- Moved controller-specific button feedback generation behind the generic MIDI device profile API.
+- Centralized profile labels, output detection, localized hints and UI capabilities in `shared/midi-device-profiles.js`.
+- Removed APC mini MK2 protocol branches and device-specific UI strings from the generic MIDI engine and Side Panel.
+- Added `docs/ADDING_MIDI_CONTROLLERS.md` as the implementation contract and step-by-step guide for adding and testing another controller.
+- Added profile adapter, UI metadata and architecture regression tests.
+
+
+## 0.5.0-beta.16
+
+- Keep the Beta 15 MIDI engine, mixer bridge, mapping logic and feedback implementation unchanged.
+- Make the MIDI device, mixer setup and mapping sections independently collapsible using native disclosure sections.
+- The **MIDI verbinden** action now also assigns the current valid browser tab as the mixer; the already selected mixer is retained when the Edge MIDI permission tab is active.
+- Keep manual mixer-tab assignment available for changing the selected mixer.
+- Replace the long README with a concise feature overview, installation guide, usage instructions and a prominent warning that all code was written with AI.
+- Add UI/workflow regression tests; no MIDI engine, mapping or feedback behaviour was intentionally changed.
+
 ## 0.5.0-beta.15
 
 - Based this release on the Beta 14 codebase.

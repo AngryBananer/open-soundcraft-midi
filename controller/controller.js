@@ -648,16 +648,16 @@ let lastFeedbackColors = null;
 const I18N = {
   de: {
     subtitle:'Open-Source-Beta · MIDI-Steuerung für Soundcraft-Ui-Mixer im Browser', language:'Sprache', notConnected:'Nicht verbunden',
-    midiDeviceTitle:'1. MIDI-Gerät', midiDeviceDescription:'Verbinde den Controller und wähle bei Bedarf einen MIDI-Ausgang für LED- und Motorfader-Feedback.', connectMidi:'MIDI verbinden', openMidiConnectTab:'MIDI-Berechtigung im neuen Tab anfragen', midiTabOpened:'MIDI-Berechtigungsseite geöffnet. Bitte dort auf „MIDI-Zugriff anfragen“ klicken. Danach zur Seitenleiste zurückkehren und „MIDI verbinden“ wählen.', midiPermissionGrantedClickToConnect:'Freigabe erteilt. Kehre zur Seitenleiste zurück und klicke auf „MIDI verbinden“.',
+    midiDeviceTitle:'1. MIDI-Gerät', midiDeviceDescription:'Controller verbinden und optional einen MIDI-Ausgang für LED- und Motorfader-Feedback wählen.', connectMidi:'MIDI verbinden', openMidiConnectTab:'MIDI-Berechtigung im neuen Tab anfragen', midiTabOpened:'MIDI-Berechtigungsseite geöffnet. Bitte dort auf „MIDI-Zugriff anfragen“ klicken. Danach zur Seitenleiste zurückkehren und „MIDI verbinden“ wählen.', midiPermissionGrantedClickToConnect:'Freigabe erteilt. Kehre zur Seitenleiste zurück und klicke auf „MIDI verbinden“.',
     midiInput:'MIDI-Eingang', allMidiInputs:'Alle MIDI-Eingänge', noMidiInputSelected:'Kein Eingang geöffnet', allMidiInputsRisk:'Alle Eingänge öffnen (nicht empfohlen)', refresh:'Aktualisieren', midiOutput:'MIDI-Ausgang', noMidiOutput:'Kein MIDI-Ausgang ausgewählt',
     faderFeedback:'MIDI-Feedback (Fader und Tasten)', feedbackFormat:'Feedback-Format', feedbackAuto:'Automatisch', feedbackCC:'Control Change (7 Bit)', feedbackPitchBend:'Pitch Bend (14 Bit)',
     parameterTargetTitle:'Direktparameter-Ziel (auch unsichtbare Fader)', parameterKey:'Soundcraft-Parameter', parameterLabel:'Anzeigename (optional)', addParameterTarget:'Parameter-Ziel übernehmen', parameterHelp:'Der Typ wird automatisch aus dem Parameter abgeleitet. Beispiele: i.7.mix (Fader), i.7.mute (Taste), i.7.aux.0.value (Aux-Send).', parameterInvalid:'Ungültiger Parameter-Schlüssel. Beispiel: i.7.aux.0.value.', parameterMissingTab:'Übernimm zuerst den aktuellen Browser-Tab als Mixer.',
-    buttonFeedback:'Tasten-LED-Feedback', feedbackProfile:'LED-Profil', feedbackGeneric:'Generisches MIDI', feedbackApc:'AKAI APC mini MK2', feedbackActiveColor:'Farbe aktiv', feedbackInactiveColor:'Farbe inaktiv', feedbackApcHint:'RGB-Pads unterstützen die konfigurierbaren Farben. Track-/Scene-Tasten besitzen feste rot/grüne LEDs und unterstützen nur Ein/Aus.',
+    buttonFeedback:'Tasten-LED-Feedback', feedbackProfile:'LED-Profil', feedbackActiveColor:'Farbe aktiv', feedbackInactiveColor:'Farbe inaktiv',
     midiNotRequested:'MIDI-Zugriff wird erst nach Klick auf „MIDI verbinden“ angefordert.', midiRequesting:'MIDI-Zugriff wird angefragt …', midiNeedsUserGesture:'Klicke auf „MIDI verbinden“, um Edge die MIDI-Anfrage aus einer Benutzeraktion heraus zu zeigen.', midiPermissionDenied:'Edge hat den MIDI-Zugriff für diese Erweiterungsseite verweigert. Prüfe die MIDI-Berechtigung und Richtlinien für die Erweiterung, nicht nur für die Mixer-Adresse.', midiPermissionUnknown:'MIDI-Berechtigung wird nicht vorab abgefragt. Klicke auf „MIDI verbinden“, um Edge direkt anzufragen.', disconnectMidi:'MIDI-Empfang deaktivieren', midiReleased:'MIDI-Empfang wurde deaktiviert. In Edge wird der native Port nicht explizit geschlossen, um einen möglichen MIDI-Treiber-Hänger zu vermeiden. Zum erneuten Verbinden auf „MIDI verbinden“ klicken.', midiInputNotSelected:'MIDI ist verbunden. Wähle einen einzelnen Eingang; nicht ausgewählte Ports bleiben geschlossen.', midiAllInputsWarning:'Alle MIDI-Eingänge sind geöffnet. Bei Problemen nur einen Eingang auswählen.', midiInputActive:'{count} MIDI-Eingang/-Eingänge aktiv. {scope}', midiRequestTimeout:'Die MIDI-Anfrage hat nicht geantwortet. Prüfe die MIDI-Berechtigung in Edge und versuche es erneut.', midiDeviceDisconnected:'MIDI-Gerät getrennt. Feedback wurde angehalten; verbinde das Gerät erneut.', feedbackHint:'Wähle einen MIDI-Ausgang, um Fader-Werte und Tasten-Zustände zurückzusenden.', lastMidiMessage:'Letzte MIDI-Nachricht',
-    mixerWebsiteTitle:'2. Mixer-Webseite', mixerWebsiteDescription:'Öffne zuerst die Mixer-Webseite in einem Tab. Mit „Mixer öffnen“ wird die Adresse des aktuellen Tabs übernommen und genau dieser Tab als festes Mixer-Ziel gespeichert; ein Wechsel zu anderen Browser-Tabs ändert die Auswahl nicht.', useCurrentTab:'Mixer öffnen', mixerNotSelected:'Öffne zuerst die Mixer-Webseite und übernimm anschließend den aktuellen Tab.', mixerSelected:'Mixer-Tab festgelegt: {title} · {url}', permissionHint:'Beim ersten Zugriff fragt der Browser nach Berechtigung für die Mixer-Webseite.', chooseTarget:'Ziel wählen', targetHint:'Übernimm den Mixer-Tab und klicke auf ein Bedienelement. MIDI Learn startet automatisch; nach jeder Zuordnung wird das nächste Ziel aktiviert. ESC beendet den Lernmodus.',
+    mixerWebsiteTitle:'2. Mixer-Webseite', mixerWebsiteDescription:'Öffne die Mixer-Webseite. Beim Klick auf „MIDI verbinden“ wird der aktuelle Tab automatisch als Mixer übernommen. Mit der manuellen Auswahl kannst du das Mixer-Ziel wechseln.', useCurrentTab:'Aktuellen Tab manuell als Mixer festlegen', mixerNotSelected:'Noch kein Mixer-Tab ausgewählt.', mixerSelected:'Mixer-Tab festgelegt: {title} · {url}', permissionHint:'Beim ersten Zugriff fragt der Browser nach Berechtigung für die Mixer-Webseite.', chooseTarget:'Ziel wählen', targetHint:'Übernimm den Mixer-Tab und klicke auf ein Bedienelement. MIDI Learn startet automatisch; nach jeder Zuordnung wird das nächste Ziel aktiviert. ESC beendet den Lernmodus.',
     startMidiLearn:'MIDI Learn starten', cancel:'Lernmodus beenden',
     learnHint:'Klicke auf „Ziel wählen“ und danach auf ein Mixer-Bedienelement. MIDI Learn startet automatisch. Für Fader CC oder Pitch Bend, für Tasten einen MIDI-Taster verwenden. ESC beendet die Zuordnungssitzung.', mappingsTitle:'3. Zuordnungen',
-    mappingsDescription:'Profile werden lokal im Browser gespeichert und können als JSON gesichert werden.', exportJson:'JSON exportieren', importJson:'JSON importieren', noMappings:'Noch keine Zuordnungen angelegt.',
+    mappingsDescription:'Gespeicherte Zuordnungen verwalten und Profile als JSON sichern.', exportJson:'JSON exportieren', importJson:'JSON importieren', noMappings:'Noch keine Zuordnungen angelegt.',
     footerBeta:'Open-Source-Beta für Browser-Mixer-Weboberflächen.', footerDisclaimer:'Unabhängiges Community-Projekt, nicht mit Soundcraft/HARMAN verbunden.',
     channelShort:'Kan.', contentScriptNoResponse:'Das Steuerungsskript hat nicht geantwortet.', pickerNoStart:'Die Zielauswahl konnte nicht gestartet werden.', midiReady:'MIDI bereit', noMidiDeviceBadge:'Kein MIDI-Gerät', midiUnsupported:'Nicht unterstützt', midiError:'MIDI-Fehler', midiConnected:'MIDI verbunden',
     midiPermissionFail:'MIDI-Zugriff fehlgeschlagen: {error}. Prüfe Browser-Unterstützung und die MIDI-Berechtigung.', webMidiUnsupported:'Web MIDI wird von diesem Browser nicht unterstützt. Verwende einen aktuellen Chromium-Browser auf dem Desktop.',
@@ -687,9 +687,9 @@ const I18N = {
     midiInput:'MIDI input', allMidiInputs:'All MIDI inputs', noMidiInputSelected:'No input opened', allMidiInputsRisk:'Open all inputs (not recommended)', refresh:'Refresh', midiOutput:'MIDI output', noMidiOutput:'No MIDI output selected',
     faderFeedback:'MIDI feedback (faders and buttons)', feedbackFormat:'Feedback format', feedbackAuto:'Automatic', feedbackCC:'Control Change (7-bit)', feedbackPitchBend:'Pitch Bend (14-bit)',
     parameterTargetTitle:'Direct parameter target (including hidden faders)', parameterKey:'Soundcraft parameter', parameterLabel:'Display name (optional)', addParameterTarget:'Use parameter target', parameterHelp:'The control type is inferred from the parameter. Examples: i.7.mix (fader), i.7.mute (button), i.7.aux.0.value (Aux send).', parameterInvalid:'Invalid parameter key. Example: i.7.aux.0.value.', parameterMissingTab:'Assign the current browser tab as the mixer first.',
-    buttonFeedback:'Button LED feedback', feedbackProfile:'LED profile', feedbackGeneric:'Generic MIDI', feedbackApc:'AKAI APC mini MK2', feedbackActiveColor:'Active color', feedbackInactiveColor:'Inactive color', feedbackApcHint:'RGB pads support configurable colors. Track/Scene buttons have fixed red/green LEDs and support on/off only.',
+    buttonFeedback:'Button LED feedback', feedbackProfile:'LED profile', feedbackActiveColor:'Active color', feedbackInactiveColor:'Inactive color',
     midiNotRequested:'MIDI access is requested only after clicking “Connect MIDI”.', midiRequesting:'Requesting MIDI access …', midiNeedsUserGesture:'Click “Connect MIDI” to request access directly from a user gesture.', midiPermissionDenied:'Edge denied MIDI access for this extension page. Check the extension permission and browser policies, not only the mixer website.', midiPermissionUnknown:'MIDI permission is not pre-checked. Click “Connect MIDI” to ask Edge directly.', disconnectMidi:'Stop MIDI input', midiReleased:'MIDI input handling has been stopped. In Edge, the native port is not explicitly closed to avoid a possible MIDI driver hang. Click “Connect MIDI” to reconnect.', midiInputNotSelected:'MIDI is connected. Select one input; other ports remain closed.', midiAllInputsWarning:'All MIDI inputs are open. Select only one input if you have problems.', midiInputActive:'{count} MIDI input(s) active. {scope}', midiRequestTimeout:'The MIDI request did not respond. Check the MIDI permission in Edge and try again.', midiDeviceDisconnected:'MIDI device disconnected. Feedback has been paused; reconnect the device.', feedbackHint:'Select a MIDI output to send fader values and button states back to your controller.', lastMidiMessage:'Last MIDI message',
-    mixerWebsiteTitle:'2. Mixer website', mixerWebsiteDescription:'Open the mixer website in a tab first. Click “Open mixer” to use the current tab URL and pin that exact tab as the mixer target; switching to other browser tabs will not change it.', useCurrentTab:'Open mixer', mixerNotSelected:'Open the mixer website first, then assign the current tab.', mixerSelected:'Mixer tab pinned: {title} · {url}', permissionHint:'The browser will request permission for the mixer website on first access.', chooseTarget:'Choose target', targetHint:'Assign the mixer tab and click a control. MIDI Learn starts automatically; the next target is activated after each mapping. Press ESC to stop.',
+    mixerWebsiteTitle:'2. Mixer website', mixerWebsiteDescription:'Open the mixer website. Clicking “Connect MIDI” automatically assigns the current tab as the mixer. Use manual selection to change the mixer target.', useCurrentTab:'Manually use current tab as mixer', mixerNotSelected:'No mixer tab selected yet.', mixerSelected:'Mixer tab pinned: {title} · {url}', permissionHint:'The browser will request permission for the mixer website on first access.', chooseTarget:'Choose target', targetHint:'Assign the mixer tab and click a control. MIDI Learn starts automatically; the next target is activated after each mapping. Press ESC to stop.',
     startMidiLearn:'Start MIDI Learn', cancel:'Stop learning',
     learnHint:'Click “Choose target”, then click a mixer control. MIDI Learn starts automatically. Use an absolute CC knob or Pitch Bend for values and a MIDI button for switches. Press ESC to stop the session.', mappingsTitle:'3. Mappings',
     mappingsDescription:'Profiles are saved locally in your browser and can be backed up as JSON.', exportJson:'Export JSON', importJson:'Import JSON', noMappings:'No mappings created yet.',
@@ -879,6 +879,36 @@ function toast(message) {
   toast.timer = window.setTimeout(() => els.toast.classList.remove('show'), 2800);
 }
 
+// Append one received MIDI message to the compact diagnostic log. The engine
+// sends raw MIDI bytes as an array; use textContent so device data is never
+// interpreted as markup. Keep the list bounded during continuous MIDI input.
+function addLog(description, raw = []) {
+  if (!els.midiLog) return;
+
+  const row = document.createElement('div');
+  row.className = 'log-row';
+
+  const label = document.createElement('span');
+  label.textContent = String(description || 'MIDI');
+  row.append(label);
+
+  const bytes = Array.isArray(raw) || ArrayBuffer.isView(raw) ? Array.from(raw) : [];
+  if (bytes.length) {
+    const code = document.createElement('code');
+    code.textContent = bytes
+      .map((byte) => Number(byte))
+      .filter((byte) => Number.isFinite(byte))
+      .map((byte) => `0x${(byte & 0xff).toString(16).padStart(2, '0').toUpperCase()}`)
+      .join(' ');
+    row.append(code);
+  }
+
+  els.midiLog.prepend(row);
+  while (els.midiLog.children.length > 12) {
+    els.midiLog.lastElementChild?.remove();
+  }
+}
+
 function setNote(element, message, kind = '') {
   element.textContent = message;
   element.classList.toggle('success', kind === 'success');
@@ -957,6 +987,25 @@ async function connectMidi() {
   }
 }
 
+async function connectMidiWorkflow() {
+  // The Connect button also performs the former 'Open mixer' action. A
+  // browser-internal permission tab is not a mixer candidate, so keep the
+  // previously selected mixer context while that tab is active.
+  if (currentBrowserTabContext && Number.isInteger(currentBrowserTabContext.tabId)) {
+    const mixerSelected = await useCurrentTabAsMixer();
+    if (!mixerSelected) return false;
+  } else if (!Number.isInteger(selectedMixerTabId) || !selectedMixerContext) {
+    const mixerSelected = await useCurrentTabAsMixer();
+    if (!mixerSelected) return false;
+  }
+
+  if (IS_SIDE_PANEL && !engineState.connected && !midiPermissionGrantedInTab) {
+    await openMidiPermissionTab();
+    return true;
+  }
+  return connectMidi();
+}
+
 
 function updateLearnButtons() {
   els.armLearnBtn.disabled = !pendingTarget || midiLearnArmed || !engineState.connected;
@@ -986,16 +1035,16 @@ function updateMixerContextDisplay() {
 }
 
 async function useCurrentTabAsMixer() {
-  // This snapshot is refreshed independently from the pinned mixer tab. The
-  // explicit button click is the only action that changes the selected mixer.
+  // This snapshot is refreshed independently from the pinned mixer tab. Both
+  // Connect MIDI and the manual assignment button select only this captured tab.
   const context = currentBrowserTabContext;
   if (!context || !Number.isInteger(context.tabId)) {
     setNote(els.targetStatus, t('noMatchingTab'), 'warning');
-    return;
+    return false;
   }
   let url;
   try { url = new URL(context.url); }
-  catch (_) { setNote(els.targetStatus, t('invalidMixerAddress'), 'warning'); return; }
+  catch (_) { setNote(els.targetStatus, t('invalidMixerAddress'), 'warning'); return false; }
   const originPattern = `${url.origin}/*`;
   let permissionPromise;
   try {
@@ -1004,7 +1053,7 @@ async function useCurrentTabAsMixer() {
     permissionPromise = chrome.permissions.request({ origins: [originPattern] });
   } catch (error) {
     setNote(els.targetStatus, `${t('permissionDenied', { origin: url.origin })} (${error.message || error})`, 'warning');
-    return;
+    return false;
   }
   els.openMixerBtn.disabled = true;
   setNote(els.targetStatus, t('openingMixer'));
@@ -1012,7 +1061,7 @@ async function useCurrentTabAsMixer() {
     const permitted = await permissionPromise;
     if (!permitted) {
       setNote(els.targetStatus, t('permissionDenied', { origin: url.origin }), 'warning');
-      return;
+      return false;
     }
     // Pin the exact tab and URL captured when the user pressed the button.
     selectedMixerTabId = context.tabId;
@@ -1030,8 +1079,10 @@ async function useCurrentTabAsMixer() {
     void pollFaderFeedback();
     setNote(els.targetStatus, t('mixerOpened', { url: context.url }), 'success');
     toast(t('mixerOpened', { url: url.origin }));
+    return true;
   } catch (error) {
     setNote(els.targetStatus, t('pickerInjectFail', { error: error.message }), 'warning');
+    return false;
   } finally {
     els.openMixerBtn.disabled = !currentBrowserTabContext;
   }
@@ -1187,11 +1238,11 @@ function getDefaultFeedbackColors() {
   };
 }
 
-function getSelectedOutputFeedbackProfile() {
+function getSelectedOutputFeedbackProfile(mode = 'toggle') {
   const output = engineState.outputs?.find((item) => item.id === selectedMidiOutput) || null;
   try {
     if (deviceProfiles && typeof deviceProfiles.detectFeedbackProfile === 'function') {
-      return deviceProfiles.detectFeedbackProfile(output) || 'generic';
+      return deviceProfiles.detectFeedbackProfile(output, mode) || 'generic';
     }
   } catch (error) {
     console.warn('[Open Soundcraft MIDI] Could not detect MIDI feedback profile:', error);
@@ -1221,7 +1272,7 @@ function createMapping(msg) {
   const mapping = {
     id: crypto.randomUUID(), enabled: true, mode,
     midi: { kind: msg.kind, channel: msg.channel, number: msg.number },
-    feedback: { enabled: true, kind: 'auto', profile: getSelectedOutputFeedbackProfile(), channel: msg.channel, number: msg.number, ...feedbackColors },
+    feedback: { enabled: true, kind: 'auto', profile: getSelectedOutputFeedbackProfile(mode), channel: msg.channel, number: msg.number, ...feedbackColors },
     target: { ...pendingTarget }, createdAt: new Date().toISOString()
   };
   const duplicate = mappings.find((item) => sameMidi(item, msg));
@@ -1287,7 +1338,7 @@ async function findTabForTarget(target) {
     } catch (_) { /* A closed/restarted tab ID may be stale; try the pinned mixer tab. */ }
   }
   // Do not silently route mappings to an arbitrary same-origin tab. The user
-  // explicitly pins one mixer tab with the button above.
+  // explicitly selects one mixer tab through Connect MIDI or the manual action.
   return null;
 }
 
@@ -1333,11 +1384,14 @@ async function loadSettings() {
   applyLanguage();
 }
 async function saveMidiSettings() {
+  // Keep a remembered device ID if its port is temporarily absent from the
+  // currently rendered options. Explicitly choosing the empty option still
+  // clears the remembered ID via the select's change handler.
   await chrome.storage.local.set({ [MIDI_SETTINGS_KEY]: {
-    inputId: els.midiInputSelect.value || '', outputId: els.midiOutputSelect.value || '', feedbackEnabled: els.feedbackEnabled.checked,
+    inputId: els.midiInputSelect.value || selectedMidiInput || '', outputId: els.midiOutputSelect.value || selectedMidiOutput || '', feedbackEnabled: els.feedbackEnabled.checked,
     feedbackFormat: els.feedbackFormatSelect.value
   } });
-  void sendEngineCommand('UPDATE_SETTINGS', { settings: { inputId: els.midiInputSelect.value || '', outputId: els.midiOutputSelect.value || '', feedbackEnabled: els.feedbackEnabled.checked, feedbackFormat: els.feedbackFormatSelect.value } }).catch(() => {});
+  void sendEngineCommand('UPDATE_SETTINGS', { settings: { inputId: els.midiInputSelect.value || selectedMidiInput || '', outputId: els.midiOutputSelect.value || selectedMidiOutput || '', feedbackEnabled: els.feedbackEnabled.checked, feedbackFormat: els.feedbackFormatSelect.value } }).catch(() => {});
 }
 
 let mappingLabelRefreshRunning = false;
@@ -1435,14 +1489,23 @@ function renderMappings() {
 
     const profileLabel = document.createElement('label'); profileLabel.textContent = t('feedbackProfile');
     const profileSelect = document.createElement('select'); profileSelect.className = 'feedback-profile';
-    profileSelect.add(new Option(t('feedbackGeneric'), 'generic'));
-    profileSelect.add(new Option(t('feedbackApc'), 'apc-mini-mk2'));
-    profileSelect.value = mapping.feedback.profile || 'generic';
+    const availableProfiles = deviceProfiles?.getFeedbackProfiles?.(currentLanguage, mapping.mode)
+      || [{ id: 'generic', label: currentLanguage === 'de' ? 'Generisches MIDI' : 'Generic MIDI', ui: { showOutputChannel: true, showColorControls: false, hint: null } }];
+    for (const profile of availableProfiles) profileSelect.add(new Option(profile.label, profile.id));
+    // A sole compatible profile is a fixed capability, not a user choice.
+    profileLabel.hidden = availableProfiles.length <= 1;
+    profileSelect.value = availableProfiles.some((profile) => profile.id === mapping.feedback.profile)
+      ? mapping.feedback.profile
+      : (deviceProfiles?.DEFAULT_PROFILE_ID || 'generic');
+    mapping.feedback.profile = profileSelect.value;
     profileSelect.addEventListener('change', async () => { mapping.feedback.profile = profileSelect.value; lastFeedbackValues.clear(); await saveMappings(); renderMappings(); void pollFaderFeedback(); });
     profileLabel.append(profileSelect);
+    const selectedFeedbackProfile = deviceProfiles?.getFeedbackProfile?.(profileSelect.value)
+      || { ui: { showOutputChannel: true, showColorControls: false, hint: null } };
+    const selectedProfileUi = selectedFeedbackProfile.ui || {};
 
     const outChannelLabel = document.createElement('label'); outChannelLabel.textContent = t('outputChannel');
-    outChannelLabel.hidden = profileSelect.value === 'apc-mini-mk2';
+    outChannelLabel.hidden = selectedProfileUi.showOutputChannel === false;
     const outChannel = document.createElement('input'); outChannel.type = 'number'; outChannel.min = '1'; outChannel.max = '16'; outChannel.value = String((Number.isInteger(mapping.feedback.channel) ? mapping.feedback.channel : mapping.midi.channel) + 1); outChannel.title = t('outputChannel');
     outChannel.addEventListener('change', async () => { mapping.feedback.channel = clampInteger(outChannel.value, 1, 16, mapping.midi.channel + 1) - 1; outChannel.value = String(mapping.feedback.channel + 1); lastFeedbackValues.clear(); await saveMappings(); });
     const outNumberLabel = document.createElement('label'); outNumberLabel.textContent = t('outputNumber');
@@ -1451,7 +1514,7 @@ function renderMappings() {
     outChannelLabel.append(outChannel); outNumberLabel.append(outNumber);
     feedbackControls.append(feedbackLabel, profileLabel, outChannelLabel, outNumberLabel);
 
-    if (mapping.mode === 'toggle') {
+    if (mapping.mode === 'toggle' && selectedProfileUi.showColorControls === true) {
       const colorControls = document.createElement('div'); colorControls.className = 'mapping-feedback-colors';
       const activeLabel = document.createElement('label'); activeLabel.append(document.createTextNode(`${t('feedbackActiveColor')} `));
       const activeColor = document.createElement('input'); activeColor.type = 'color';
@@ -1485,8 +1548,8 @@ function renderMappings() {
       inactiveLabel.append(inactiveColor, inactiveValue);
       colorControls.append(activeLabel, inactiveLabel);
       feedbackControls.append(colorControls);
-      const hint = document.createElement('small'); hint.className = 'feedback-apc-hint'; hint.textContent = t('feedbackApcHint');
-      feedbackControls.append(hint);
+      const hintText = selectedProfileUi.hint && (selectedProfileUi.hint[currentLanguage] || selectedProfileUi.hint.en);
+      if (hintText) { const hint = document.createElement('small'); hint.className = 'feedback-profile-hint'; hint.textContent = hintText; feedbackControls.append(hint); }
     }
     selector.append(feedbackControls);
 
@@ -1508,10 +1571,13 @@ async function loadMappings() {
     for (const mapping of mappings) {
       if (!mapping.feedback) mapping.feedback = { enabled: true, kind: 'auto', profile: 'generic', channel: mapping.midi.channel, number: mapping.midi.number, ...getDefaultFeedbackColors() };
       mapping.feedback.profile ||= 'generic';
-      Object.assign(mapping.feedback, colorUtils ? colorUtils.normalizeColors(mapping.feedback, getDefaultFeedbackColors()) : getDefaultFeedbackColors());
-      if (mapping.mode === 'toggle' && mapping.feedback.enabled === undefined) mapping.feedback.enabled = true;
       if (mapping.target?.backend === 'demo') mapping.target.backend = 'web';
       mapping.mode = mappingModeUtils?.resolveTargetMode(mapping.target, mapping.mode || 'toggle') || mapping.mode || 'toggle';
+      if (deviceProfiles?.supportsFeedbackMode && !deviceProfiles.supportsFeedbackMode(mapping.feedback.profile, mapping.mode)) {
+        mapping.feedback.profile = deviceProfiles.DEFAULT_PROFILE_ID || 'generic';
+      }
+      Object.assign(mapping.feedback, colorUtils ? colorUtils.normalizeColors(mapping.feedback, getDefaultFeedbackColors()) : getDefaultFeedbackColors());
+      if (mapping.mode === 'toggle' && mapping.feedback.enabled === undefined) mapping.feedback.enabled = true;
     }
     renderMappings();
   } catch (error) { toast(t('profileLoadFailed', { error: error.message })); }
@@ -1522,7 +1588,7 @@ function cancelLearn() {
 }
 
 function exportMappings() {
-  const blob = new Blob([JSON.stringify({ version: '0.5.0-beta.15', mappings }, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify({ version: '0.5.0-beta.18', mappings }, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a');
   anchor.href = url; anchor.download = 'open-soundcraft-midi-profile.json'; anchor.click(); URL.revokeObjectURL(url); toast(t('exportDone'));
 }
@@ -1537,7 +1603,14 @@ async function importMappingsFile(file) {
       if (mapping.target.backend === 'demo') mapping.target.backend = 'web';
       mapping.mode = mappingModeUtils?.resolveTargetMode(mapping.target, mapping.mode || 'toggle') || mapping.mode || 'toggle';
       if (!mapping.feedback) mapping.feedback = { enabled: true, kind: 'auto', profile: 'generic', channel: mapping.midi.channel, number: mapping.midi.number, ...getDefaultFeedbackColors() };
-      else { mapping.feedback.profile ||= 'generic'; Object.assign(mapping.feedback, colorUtils ? colorUtils.normalizeColors(mapping.feedback, getDefaultFeedbackColors()) : getDefaultFeedbackColors()); if (mapping.mode === 'toggle' && mapping.feedback.enabled === undefined) mapping.feedback.enabled = true; }
+      else {
+        mapping.feedback.profile ||= 'generic';
+        if (deviceProfiles?.supportsFeedbackMode && !deviceProfiles.supportsFeedbackMode(mapping.feedback.profile, mapping.mode)) {
+          mapping.feedback.profile = deviceProfiles.DEFAULT_PROFILE_ID || 'generic';
+        }
+        Object.assign(mapping.feedback, colorUtils ? colorUtils.normalizeColors(mapping.feedback, getDefaultFeedbackColors()) : getDefaultFeedbackColors());
+        if (mapping.mode === 'toggle' && mapping.feedback.enabled === undefined) mapping.feedback.enabled = true;
+      }
     }
     mappings = next; await saveMappings(); renderMappings(); toast(t('imported', { count: mappings.length }));
   } catch (error) { toast(t('importFailed', { error: error.message })); }
@@ -1658,13 +1731,9 @@ els.languageSelect.addEventListener('change', async () => {
   toast(t('languageSaved'));
 });
 els.connectMidiBtn.addEventListener('click', () => {
-  if (IS_SIDE_PANEL && !engineState.connected && !midiPermissionGrantedInTab) {
-    void openMidiPermissionTab();
-    return;
-  }
-  // After permission is granted in the new tab, this second click starts the
-  // actual MIDI session directly from a user gesture in the Side Panel.
-  void connectMidi();
+  // Select the current mixer tab first; then continue the existing MIDI
+  // permission / connection workflow.
+  void connectMidiWorkflow();
 });
 els.disconnectMidiBtn.addEventListener('click', () => void disconnectMidiDevices());
 window.addEventListener('keydown', (event) => {
@@ -1695,8 +1764,8 @@ els.importFile.addEventListener('change', () => { if (els.importFile.files?.[0])
   // Load preferences first so mappings missing older color fields inherit the
   // user's most recently selected colors rather than hard-coded defaults.
   await loadSettings();
-  // Track the current browser tab as a candidate, but do not select it as the
-  // mixer until the user explicitly clicks 'Use current tab as mixer'.
+  // Track the current browser tab as a candidate. It becomes the mixer only
+  // after the user clicks Connect MIDI or the manual mixer-selection button.
   await refreshCurrentBrowserTabContext();
   await restoreSelectedMixerContext();
   // MIDI permission is requested once in a dedicated normal extension tab.
@@ -1718,9 +1787,9 @@ els.importFile.addEventListener('change', () => { if (els.importFile.files?.[0])
 })().catch((error) => console.error(error));
 window.setInterval(() => { void refreshMappingLabels(); }, 2500);
 // MIDI input, mapping execution, and feedback polling live in the persistent offscreen engine.
-// Keep only a candidate for the one explicit "Use current tab as mixer"
-// action. The pinned mixer target never changes just because another tab gets
-// focus. Navigating the pinned tab itself updates its saved URL, not its ID.
+// Keep the active tab as a candidate; focusing another tab never changes the
+// pinned mixer by itself. Connect MIDI or the manual selection button performs
+// the change. Navigating the pinned tab itself updates its URL, not its ID.
 chrome.tabs.onActivated.addListener((activeInfo) => {
   void refreshCurrentBrowserTabContext(activeInfo?.tabId);
 });

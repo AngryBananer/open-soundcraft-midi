@@ -13,6 +13,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'u
 
 test('toolbar icon uses the browser-native open/close toggle for the Side Panel', () => {
   assert.match(background, /setPanelBehavior\(\{\s*openPanelOnActionClick:\s*true\s*\}\)/);
+  assert.match(controller, /async function connectMidiWorkflow\(\)/);
   assert.doesNotMatch(background, /chrome\.action\.onClicked/);
   assert.equal(manifest.action.default_title, 'Open / close Open Soundcraft MIDI sidebar');
 });

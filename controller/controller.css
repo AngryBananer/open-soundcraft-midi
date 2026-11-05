@@ -10,7 +10,10 @@ body.side-panel .page { width:calc(100% - 16px); margin:10px auto 24px; }
 body.side-panel .header { gap:10px; margin-bottom:14px; }
 body.side-panel .mark { width:42px; height:42px; flex-basis:42px; border-radius:11px; font-size:13px; }
 body.side-panel h1 { font-size:19px; }
-body.side-panel .card { padding:13px; border-radius:13px; }
+body.side-panel .card { border-radius:13px; }
+body.side-panel .section-summary { padding:13px; }
+body.side-panel .section-content { padding:0 13px 13px; }
+body.side-panel .section-card:not([open]) .section-summary { padding-bottom:13px; }
 .header { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
 .mark { display:grid; place-items:center; flex:0 0 60px; width:60px; height:60px; border-radius:15px; background:var(--accent); color:#092013; font-weight:900; letter-spacing:-1px; font-size:17px; box-shadow:0 7px 24px #0005; }
 .header-copy { min-width:0; flex:1; }
@@ -23,6 +26,21 @@ h1 { margin:0; font-size:clamp(22px,4vw,32px); letter-spacing:-.7px; }
 .badge.neutral { background:#252832; color:#c1c7d2; }
 .badge.bad { background:#421f27; border-color:#84404c; color:#ffc4cb; }
 .card { background:linear-gradient(145deg,#1c2028,#171a20); border:1px solid var(--border); border-radius:17px; padding:20px; margin-bottom:16px; box-shadow:0 10px 28px #0002; }
+.section-card { padding:0; overflow:hidden; }
+.section-summary { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 20px; cursor:pointer; list-style:none; user-select:none; }
+.section-summary::-webkit-details-marker { display:none; }
+.section-summary:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; border-radius:12px; }
+.section-summary-copy { display:block; min-width:0; }
+.section-summary h2 { margin:0; }
+.section-summary-description { display:block; margin-top:2px; color:var(--muted); font-size:13px; }
+.section-chevron { flex:0 0 10px; width:10px; height:10px; margin-right:3px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg) translateY(-2px); transition:transform .16s ease; }
+.section-card:not([open]) .section-chevron { transform:rotate(-45deg); }
+.section-content { padding:0 20px 18px; }
+.section-card[open] .section-content { border-top:1px solid var(--border); }
+.section-card:not([open]) .section-summary { padding-bottom:16px; }
+.midi-actions-row,.section-actions-row { justify-content:flex-end; }
+.midi-actions-row { margin-top:14px; }
+.section-actions-row { margin:0 0 12px; }
 .section-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
 h2 { margin:0; font-size:18px; letter-spacing:-.2px; }
 h3 { margin:0; font-size:15px; }
@@ -75,7 +93,7 @@ input:focus,select:focus,button:focus-visible { outline:2px solid var(--accent);
 .mapping-feedback input[type="color"]::-moz-color-swatch { border:1px solid #ffffff55; border-radius:3px; }
 .mapping-feedback-colors label { display:flex; align-items:center; gap:7px; }
 .mapping-feedback-colors .color-value { color:var(--muted); font:11px/1.2 ui-monospace,monospace; min-width:62px; }
-.feedback-apc-hint { width:100%; color:var(--muted); font-size:11px; }
+.feedback-profile-hint { width:100%; color:var(--muted); font-size:11px; }
 .parameter-builder { margin-top:12px; padding:10px 12px; background:#14171d; border:1px solid var(--border); border-radius:9px; }
 .parameter-builder summary { cursor:pointer; color:var(--accent); font-weight:650; }
 .parameter-builder-grid { display:grid; grid-template-columns:minmax(100px,.65fr) minmax(0,1.35fr); gap:8px; align-items:center; margin-top:12px; }
@@ -119,3 +137,10 @@ footer { color:#9099a8; font-size:12px; text-align:center; line-height:1.8; padd
 .midi-actions button { max-width:100%; }
 .mixer-selection-row { align-items:center; flex-wrap:wrap; }
 .mixer-context-status { flex:1 1 220px; min-width:0; color:var(--muted); font-size:12px; overflow-wrap:anywhere; padding:8px 10px; background:#14171d; border:1px solid #2c313b; border-radius:8px; }
+
+@media (max-width:700px) {
+  .section-summary { padding:14px 15px; }
+  .section-content { padding:0 15px 15px; }
+  .midi-actions-row,.section-actions-row { justify-content:stretch; }
+  .midi-actions-row button,.section-actions-row button { flex:1 1 auto; }
+}

@@ -31,10 +31,11 @@ test('toolbar action is configured as a native Side Panel open/close toggle', ()
   assert.match(background, /chrome\.offscreen\.createDocument/);
 });
 
-test('controller pins the active tab only from the explicit mixer button', () => {
+test('controller can pin the active tab from Connect MIDI or manual mixer selection', () => {
   const source = fs.readFileSync(require.resolve('../controller/controller.js'), 'utf8');
   assert.match(source, /chrome\.tabs\.query\(\{\s*active:\s*true,\s*lastFocusedWindow:\s*true\s*\}\)/);
   assert.match(source, /async function useCurrentTabAsMixer\(\)/);
+  assert.match(source, /async function connectMidiWorkflow\(\)/);
   assert.match(source, /chrome\.permissions\.request\(\{ origins: \[originPattern\] \}\)/);
   assert.match(source, /SELECTED_MIXER_CONTEXT_KEY/);
   assert.doesNotMatch(source, /mixerTabSelect/);

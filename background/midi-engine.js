@@ -11,7 +11,6 @@ const ENGINE_KEYS = Object.freeze({
 
 const midiDeviceProfiles = window.OpenSoundcraftMidiDeviceProfiles;
 const midiColors = window.OpenSoundcraftMidiColors;
-const apc = window.OpenSoundcraftMidiApc;
 const mappingMode = window.OpenSoundcraftMidiMappingMode;
 
 let midiAccess = null;
@@ -125,6 +124,10 @@ function requestMidiAccess() {
 async function connectMidi() {
   if (midiAccess) { refreshDevices(); return true; }
   if (connectPromise) return connectPromise;
+  // Rehydrate the last saved selections before requesting access. The device
+  // refresh below will show and activate them if the ports are available.
+  selectedInputId = midiSettings.inputId || '';
+  selectedOutputId = midiSettings.outputId || '';
   connectPromise = (async () => {
     publishStatus({ state: 'requesting', message: 'Requesting MIDI access in background…' });
     try {
@@ -151,8 +154,8 @@ function refreshDevices() {
   if (!midiAccess) { publishStatus({ state: 'disconnected' }); return; }
   const inputs = [...midiAccess.inputs.values()].filter(isConnected);
   const outputs = [...midiAccess.outputs.values()].filter(isConnected);
-  if (!inputs.some((port) => port.id === selectedInputId)) selectedInputId = '';
-  if (!outputs.some((port) => port.id === selectedOutputId)) selectedOutputId = '';
+  // Keep the last selected device IDs even when a controller is temporarily
+  // unplugged. A later refresh/connect can then restore the same selection.
   midiSettings.inputId = selectedInputId;
   midiSettings.outputId = selectedOutputId;
   attachSelectedInput();
@@ -206,10 +209,11 @@ async function disconnectMidi() {
   for (const input of managedInputs.values()) detachInput(input);
   managedInputs = new Map();
   midiAccess = null;
-  selectedInputId = '';
-  selectedOutputId = '';
-  midiSettings.inputId = '';
-  midiSettings.outputId = '';
+  // Disconnect the active ports, but retain the selected device IDs as user
+  // preferences. They are restored automatically on the next CONNECT when
+  // the corresponding devices are available again.
+  midiSettings.inputId = selectedInputId;
+  midiSettings.outputId = selectedOutputId;
   feedbackCache.clear();
   blockedOutputs.clear();
   feedbackEchoes.clear();
@@ -292,7 +296,7 @@ async function createLearnedMapping(message) {
   const defaultColors = midiColors?.normalizeColors(colorData?.[ENGINE_KEYS.feedbackColors]
     || midiColors?.latestColorsFromMappings(mappings) || null) || { activeColor: '#00FF00', inactiveColor: '#000000' };
   const output = midiAccess?.outputs.get(selectedOutputId) || null;
-  const profile = midiDeviceProfiles?.detectFeedbackProfile(output) || 'generic';
+  const profile = midiDeviceProfiles?.detectFeedbackProfile(output, mode) || 'generic';
   const mapping = {
     id: crypto.randomUUID(), enabled: true, mode,
     midi: { kind: message.kind, channel: message.channel, number: message.number },
@@ -403,20 +407,22 @@ function sendButtonFeedback(mapping, active) {
   if (!output || output.state === 'disconnected' || blockedOutputs.has(output.id)) return;
   const settings = mapping.feedback;
   const number = clampInt(settings.number, 0, 127, mapping.midi.number);
-  const profile = settings.profile || 'generic';
-  let bytes;
-  let label;
-  if (profile === 'apc-mini-mk2' && apc) {
-    bytes = apc.ledMessage(number, active, settings.activeColor || '#00FF00', settings.inactiveColor || '#000000');
-    label = 'apc-mini-mk2';
-  } else {
-    const channel = clampInt(Number.isInteger(settings.channel) ? settings.channel : mapping.midi.channel, 0, 15, mapping.midi.channel);
-    const kind = settings.kind && settings.kind !== 'auto' ? settings.kind : mapping.midi.kind;
-    bytes = kind === 'cc'
-      ? [0xb0 | channel, number, active ? 127 : 0]
-      : [0x90 | channel, number, active ? 127 : 0];
-    label = `${kind}:${channel}`;
+  const profile = settings.profile || midiDeviceProfiles?.DEFAULT_PROFILE_ID || 'generic';
+  let message;
+  try {
+    message = midiDeviceProfiles?.createButtonFeedbackMessage?.(profile, {
+      number,
+      active,
+      settings,
+      fallbackChannel: mapping.midi.channel,
+      fallbackKind: mapping.midi.kind
+    });
+  } catch (error) {
+    console.warn('[Open Soundcraft MIDI] Controller feedback profile failed:', error);
   }
+  if (!message || !Array.isArray(message.bytes) || message.bytes.length !== 3) return;
+  const bytes = message.bytes;
+  const label = message.cacheLabel || profile;
   const echoChannel = bytes[0] & 0x0f;
   const status = bytes[0] & 0xf0;
   const echo = status === 0x90 || status === 0x80
@@ -546,23 +552,27 @@ async function onCommand(command, payload = {}) {
       feedbackCache.clear();
       await rpc('STORAGE_SET_LOCAL', { values: { [ENGINE_KEYS.midiSettings]: midiSettings } });
       publishStatus(); void pollFeedback(); return true;
-    case 'UPDATE_SETTINGS':
-      midiSettings = { ...midiSettings, ...(payload.settings || {}) };
-      selectedInputId = midiSettings.inputId || selectedInputId;
-      selectedOutputId = midiSettings.outputId || selectedOutputId;
+    case 'UPDATE_SETTINGS': {
+      const settings = payload.settings || {};
+      midiSettings = { ...midiSettings, ...settings };
+      if (Object.prototype.hasOwnProperty.call(settings, 'inputId')) selectedInputId = String(settings.inputId || '');
+      if (Object.prototype.hasOwnProperty.call(settings, 'outputId')) selectedOutputId = String(settings.outputId || '');
       feedbackCache.clear();
       await rpc('STORAGE_SET_LOCAL', { values: { [ENGINE_KEYS.midiSettings]: midiSettings } });
       attachSelectedInput(); publishStatus(); void pollFeedback(); return true;
+    }
     case 'SYNC_STATE':
       if (Array.isArray(payload.mappings)) mappings = payload.mappings;
-      if (payload.midiSettings) midiSettings = { ...midiSettings, ...payload.midiSettings };
+      if (payload.midiSettings) {
+        midiSettings = { ...midiSettings, ...payload.midiSettings };
+        if (Object.prototype.hasOwnProperty.call(payload.midiSettings, 'inputId')) selectedInputId = String(payload.midiSettings.inputId || '');
+        if (Object.prototype.hasOwnProperty.call(payload.midiSettings, 'outputId')) selectedOutputId = String(payload.midiSettings.outputId || '');
+      }
       if (payload.mixerContext !== undefined) mixerContext = payload.mixerContext;
       if (payload.language) language = payload.language === 'en' ? 'en' : 'de';
       if (payload.pendingTarget !== undefined) pendingTarget = payload.pendingTarget;
       if (typeof payload.continuousLearning === 'boolean') continuousLearning = payload.continuousLearning;
       if (typeof payload.learningArmed === 'boolean') learningArmed = payload.learningArmed;
-      selectedInputId = midiSettings.inputId || selectedInputId;
-      selectedOutputId = midiSettings.outputId || selectedOutputId;
       if (midiAccess) { attachSelectedInput(); publishStatus(); void pollFeedback(); }
       return true;
     case 'SET_MIXER_CONTEXT': mixerContext = payload.context || null; void refreshMonitors(); return true;

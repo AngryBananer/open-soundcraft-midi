@@ -71,6 +71,6 @@ test('new MIDI mappings inherit the persisted last-used feedback colors in the b
 
 test('background LED feedback profile is detected from the currently selected output', () => {
   const create = sourceOf(engine, 'createLearnedMapping', 'async function applyMapping');
-  assert.match(create, /detectFeedbackProfile\(output\) \|\| 'generic'/);
+  assert.match(create, /detectFeedbackProfile\(output, mode\) \|\| 'generic'/);
   assert.match(create, /profile, channel: message\.channel/);
 });

@@ -24,84 +24,102 @@
       </div>
     </header>
 
-    <section id="midiSettingsCard" class="card">
-      <div class="section-heading">
-        <div><h2 data-i18n="midiDeviceTitle">1. MIDI-Gerät</h2><p data-i18n="midiDeviceDescription">Verbinde den Controller und wähle bei Bedarf einen MIDI-Ausgang für LED- und Motorfader-Feedback.</p></div>
-        <div class="button-pair midi-actions">
+    <details id="midiSettingsCard" class="card section-card" open>
+      <summary class="section-summary">
+        <div class="section-summary-copy">
+          <h2 data-i18n="midiDeviceTitle">1. MIDI-Gerät</h2>
+          <span class="section-summary-description" data-i18n="midiDeviceDescription">Verbinde den Controller und wähle bei Bedarf einen MIDI-Ausgang für LED- und Motorfader-Feedback.</span>
+        </div>
+        <span class="section-chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="section-content">
+        <div class="control-row midi-actions-row">
           <button id="connectMidiBtn" class="primary" data-i18n="connectMidi">MIDI verbinden</button>
           <button id="disconnectMidiBtn" class="secondary" disabled data-i18n="disconnectMidi">MIDI trennen / freigeben</button>
         </div>
-      </div>
-      <div class="control-row">
-        <label for="midiInputSelect" data-i18n="midiInput">MIDI-Eingang</label>
-        <select id="midiInputSelect">
-          <option value="" data-i18n="noMidiInputSelected">Kein Eingang geöffnet</option>
-          <option value="*" data-i18n="allMidiInputsRisk">Alle Eingänge öffnen (nicht empfohlen)</option>
-        </select>
-        <button id="refreshMidiBtn" class="secondary" data-i18n="refresh">Aktualisieren</button>
-      </div>
-      <div class="control-row">
-        <label for="midiOutputSelect" data-i18n="midiOutput">MIDI-Ausgang</label>
-        <select id="midiOutputSelect"><option value="" data-i18n="noMidiOutput">Kein MIDI-Ausgang ausgewählt</option></select>
-      </div>
-      <div class="control-row feedback-row">
-        <label class="check-label" for="feedbackEnabled"><input id="feedbackEnabled" type="checkbox" checked> <span data-i18n="faderFeedback">Fader-Feedback senden</span></label>
-        <label for="feedbackFormatSelect" data-i18n="feedbackFormat">Feedback-Format</label>
-        <select id="feedbackFormatSelect">
-          <option value="auto" data-i18n="feedbackAuto">Automatisch</option>
-          <option value="cc" data-i18n="feedbackCC">Control Change (7 Bit)</option>
-          <option value="pitchbend" data-i18n="feedbackPitchBend">Pitch Bend (14 Bit)</option>
-        </select>
-      </div>
-      <div id="midiStatus" class="note" data-i18n="midiNotRequested">MIDI-Zugriff wurde noch nicht angefordert.</div>
-      <div id="feedbackStatus" class="note" data-i18n="feedbackHint">Wähle einen MIDI-Ausgang, um aktuelle Fader-Werte an LED-Ringe oder Motorfader zurückzusenden.</div>
-      <div class="last-message"><span data-i18n="lastMidiMessage">Letzte MIDI-Nachricht</span><code id="lastMidi">–</code></div>
-      <div id="midiLog" class="midi-log" aria-live="polite"></div>
-    </section>
-
-    <section id="mixerSettingsCard" class="card">
-      <div class="section-heading">
-        <div><h2 data-i18n="mixerWebsiteTitle">2. Mixer-Webseite</h2><p data-i18n="mixerWebsiteDescription">Die Steuerung erfolgt direkt über die im Browser geöffnete Mixer-Weboberfläche – ohne separaten Bridge-Dienst.</p></div>
-      </div>
-      <div class="control-row mixer-selection-row">
-        <button id="openMixerBtn" class="primary" disabled data-i18n="useCurrentTab">Aktuellen Tab als Mixer übernehmen</button>
-        <span id="mixerContextStatus" class="mixer-context-status" data-i18n="mixerNotSelected">Öffne zuerst die Mixer-Webseite und übernimm anschließend den aktuellen Tab.</span>
-        <button id="pickTargetBtn" class="primary" disabled data-i18n="chooseTarget">Ziel wählen</button>
-      </div>
-      <div class="note" data-i18n="permissionHint">Beim ersten Zugriff fragt der Browser nach Berechtigung für die Mixer-Webseite.</div>
-      <div id="targetStatus" class="note" data-i18n="targetHint">Übernimm den Mixer-Tab und klicke danach auf den Fader, Button, Schalter oder ein anderes Bedienelement.</div>
-      <details class="parameter-builder">
-        <summary data-i18n="parameterTargetTitle">Direktparameter-Ziel (auch unsichtbare Fader)</summary>
-        <div class="parameter-builder-grid">
-          <label for="parameterKeyInput" data-i18n="parameterKey">Soundcraft-Parameter</label>
-          <input id="parameterKeyInput" type="text" spellcheck="false" placeholder="i.7.aux.0.value">
-          <label for="parameterLabelInput" data-i18n="parameterLabel">Anzeigename (optional)</label>
-          <input id="parameterLabelInput" type="text" placeholder="Kanal 7 · Aux 1 Send">
-          <button id="addParameterTargetBtn" class="secondary" data-i18n="addParameterTarget">Parameter-Ziel übernehmen</button>
-          <small data-i18n="parameterHelp">Beispiele: i.7.mix (Kanal-Fader), i.7.aux.0.value (Aux-Send 1), a.0.mix (Aux-Master).</small>
+        <div class="control-row">
+          <label for="midiInputSelect" data-i18n="midiInput">MIDI-Eingang</label>
+          <select id="midiInputSelect">
+            <option value="" data-i18n="noMidiInputSelected">Kein Eingang geöffnet</option>
+            <option value="*" data-i18n="allMidiInputsRisk">Alle Eingänge öffnen (nicht empfohlen)</option>
+          </select>
+          <button id="refreshMidiBtn" class="secondary" data-i18n="refresh">Aktualisieren</button>
         </div>
-      </details>
-      <div class="control-row target-row">
-        <button id="armLearnBtn" class="primary" disabled data-i18n="startMidiLearn">MIDI Learn starten</button>
-        <button id="cancelLearnBtn" class="secondary" disabled data-i18n="cancel">Abbrechen</button>
+        <div class="control-row">
+          <label for="midiOutputSelect" data-i18n="midiOutput">MIDI-Ausgang</label>
+          <select id="midiOutputSelect"><option value="" data-i18n="noMidiOutput">Kein MIDI-Ausgang ausgewählt</option></select>
+        </div>
+        <div class="control-row feedback-row">
+          <label class="check-label" for="feedbackEnabled"><input id="feedbackEnabled" type="checkbox" checked> <span data-i18n="faderFeedback">Fader-Feedback senden</span></label>
+          <label for="feedbackFormatSelect" data-i18n="feedbackFormat">Feedback-Format</label>
+          <select id="feedbackFormatSelect">
+            <option value="auto" data-i18n="feedbackAuto">Automatisch</option>
+            <option value="cc" data-i18n="feedbackCC">Control Change (7 Bit)</option>
+            <option value="pitchbend" data-i18n="feedbackPitchBend">Pitch Bend (14 Bit)</option>
+          </select>
+        </div>
+        <div id="midiStatus" class="note" data-i18n="midiNotRequested">MIDI-Zugriff wurde noch nicht angefordert.</div>
+        <div id="feedbackStatus" class="note" data-i18n="feedbackHint">Wähle einen MIDI-Ausgang, um aktuelle Fader-Werte an LED-Ringe oder Motorfader zurückzusenden.</div>
+        <div class="last-message"><span data-i18n="lastMidiMessage">Letzte MIDI-Nachricht</span><code id="lastMidi">–</code></div>
+        <div id="midiLog" class="midi-log" aria-live="polite"></div>
       </div>
-      <div id="learnStatus" class="note" data-i18n="learnHint">Ziel auswählen und MIDI Learn starten. Für Werte einen CC-Regler oder Pitch Bend, für Tasten einen MIDI-Taster verwenden.</div>
-    </section>
+    </details>
 
-    <section id="mappingsSettingsCard" class="card">
-      <div class="section-heading">
-        <div><h2 data-i18n="mappingsTitle">3. Zuordnungen</h2><p data-i18n="mappingsDescription">Profile werden lokal im Browser gespeichert und können als JSON gesichert werden.</p></div>
-        <div class="button-pair">
+    <details id="mixerSettingsCard" class="card section-card" open>
+      <summary class="section-summary">
+        <div class="section-summary-copy">
+          <h2 data-i18n="mixerWebsiteTitle">2. Mixer-Webseite</h2>
+          <span class="section-summary-description" data-i18n="mixerWebsiteDescription">Öffne die Mixer-Webseite. Beim Klick auf „MIDI verbinden“ wird der aktuelle Tab automatisch als Mixer übernommen.</span>
+        </div>
+        <span class="section-chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="section-content">
+        <div class="control-row mixer-selection-row">
+          <button id="openMixerBtn" class="secondary" disabled data-i18n="useCurrentTab">Aktuellen Tab manuell als Mixer festlegen</button>
+          <span id="mixerContextStatus" class="mixer-context-status" data-i18n="mixerNotSelected">Noch kein Mixer-Tab ausgewählt.</span>
+          <button id="pickTargetBtn" class="primary" disabled data-i18n="chooseTarget">Ziel wählen</button>
+        </div>
+        <div class="note" data-i18n="permissionHint">Beim ersten Zugriff fragt der Browser nach Berechtigung für die Mixer-Webseite.</div>
+        <div id="targetStatus" class="note" data-i18n="targetHint">Übernimm den Mixer-Tab und klicke danach auf den Fader, Button, Schalter oder ein anderes Bedienelement.</div>
+        <details class="parameter-builder">
+          <summary data-i18n="parameterTargetTitle">Direktparameter-Ziel (auch unsichtbare Fader)</summary>
+          <div class="parameter-builder-grid">
+            <label for="parameterKeyInput" data-i18n="parameterKey">Soundcraft-Parameter</label>
+            <input id="parameterKeyInput" type="text" spellcheck="false" placeholder="i.7.aux.0.value">
+            <label for="parameterLabelInput" data-i18n="parameterLabel">Anzeigename (optional)</label>
+            <input id="parameterLabelInput" type="text" placeholder="Kanal 7 · Aux 1 Send">
+            <button id="addParameterTargetBtn" class="secondary" data-i18n="addParameterTarget">Parameter-Ziel übernehmen</button>
+            <small data-i18n="parameterHelp">Beispiele: i.7.mix (Kanal-Fader), i.7.aux.0.value (Aux-Send 1), a.0.mix (Aux-Master).</small>
+          </div>
+        </details>
+        <div class="control-row target-row">
+          <button id="armLearnBtn" class="primary" disabled data-i18n="startMidiLearn">MIDI Learn starten</button>
+          <button id="cancelLearnBtn" class="secondary" disabled data-i18n="cancel">Abbrechen</button>
+        </div>
+        <div id="learnStatus" class="note" data-i18n="learnHint">Ziel auswählen und MIDI Learn starten. Für Werte einen CC-Regler oder Pitch Bend, für Tasten einen MIDI-Taster verwenden.</div>
+      </div>
+    </details>
+
+    <details id="mappingsSettingsCard" class="card section-card">
+      <summary class="section-summary">
+        <div class="section-summary-copy">
+          <h2 data-i18n="mappingsTitle">3. Zuordnungen</h2>
+          <span class="section-summary-description" data-i18n="mappingsDescription">Alle gespeicherten MIDI-Zuordnungen und Profile.</span>
+        </div>
+        <span class="section-chevron" aria-hidden="true"></span>
+      </summary>
+      <div class="section-content">
+        <div class="control-row section-actions-row">
           <button id="exportBtn" class="secondary" data-i18n="exportJson">JSON exportieren</button>
           <button id="importBtn" class="secondary" data-i18n="importJson">JSON importieren</button>
           <input id="importFile" type="file" accept="application/json,.json" hidden>
         </div>
+        <div id="mappingList" class="mapping-list"><div class="empty" data-i18n="noMappings">Noch keine Zuordnungen angelegt.</div></div>
       </div>
-      <div id="mappingList" class="mapping-list"><div class="empty" data-i18n="noMappings">Noch keine Zuordnungen angelegt.</div></div>
-    </section>
+    </details>
 
     <footer>
-      <strong>Open Soundcraft MIDI 0.5.0-beta.15</strong> · <span data-i18n="footerBeta">Open-Source-Beta für Browser-Mixer-Weboberflächen.</span>
+      <strong>Open Soundcraft MIDI 0.5.0-beta.18</strong> · <span data-i18n="footerBeta">Open-Source-Beta für Browser-Mixer-Weboberflächen.</span>
       <div data-i18n="footerDisclaimer">Unabhängiges Community-Projekt, nicht mit Soundcraft/HARMAN verbunden.</div>
     </footer>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
