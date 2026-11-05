@@ -1,68 +1,80 @@
 # Open Soundcraft MIDI
 
-> ⚠️ **Warnung – KI-generierter Code:** Der gesamte Code dieses Projekts wurde vollständig mit KI geschrieben. Er wurde nicht unabhängig vollständig geprüft oder auditiert. Die Erweiterung ist Beta-Software. Nutzung auf eigene Verantwortung; teste sie vor einem Live-Einsatz und sichere deine Profile regelmäßig.
+> ⚠️ **AI-generated code warning:** The entire codebase was written with AI. It has not been independently reviewed or fully audited. This is beta software. Use it at your own risk, test it before using it in a live environment, and back up your MIDI profiles regularly.
 
-**Version:** 0.6.0 · **Lizenz:** MIT
+**Version:** 0.6.0 · **License:** MIT  
+**Languages:** English · [Deutsch](README.de.md)
 
-Open Soundcraft MIDI verbindet einen MIDI-Controller mit der Weboberfläche eines Soundcraft-Ui-Mixers. Die Steuerung erfolgt über den geöffneten Mixer-Tab im Browser.
+Open Soundcraft MIDI connects a MIDI controller to the browser-based interface of a Soundcraft Ui mixer. Mixer control is performed through the mixer tab that is open in your browser.
 
-## Funktionen
+## Features
 
-- Fader, Tasten, Schalter und weitere Mixer-Bedienelemente per MIDI steuern.
-- MIDI Learn für CC-Regler, Note-Tasten und Pitch Bend; fortlaufende Zuordnung mehrerer Bedienelemente.
-- Rückmeldung von Fader-Werten und Tasten-Zuständen an LED-Ringe, RGB-Pads und Motorfader.
-- Vordefiniertes LED-Feedback-Profil für den AKAI APC mini MK2; Farben pro Zuordnung konfigurierbar.
-- Direkte Soundcraft-Parameter-Zuordnung, auch für aktuell nicht sichtbare Fader und Aux-Sends.
-- MIDI-Profile lokal speichern sowie als JSON importieren und exportieren.
-- Deutsch- und englischsprachige Oberfläche im Chromium-Side-Panel.
+- Control mixer faders, buttons, switches, and other supported controls using MIDI.
+- MIDI Learn for Control Change (CC), Note, and Pitch Bend messages, including continuous learning for multiple controls.
+- Send fader values and button states back to compatible MIDI controllers, including LED rings, RGB pads, and supported motorized faders.
+- AKAI APC mini MK2 button/pad LED feedback with configurable colors. The APC mini MK2's physical faders are not motorized and cannot display returned fader values.
+- Map Soundcraft parameters directly, including controls that are not currently visible, such as Aux sends.
+- Save mappings locally and import or export profiles as JSON.
+- English and German interface in the Chromium Side Panel.
 
 ## Installation
 
-**Voraussetzungen:** Desktop-Version von Microsoft Edge oder Google Chrome (Chromium) und ein MIDI-Controller. Für LED- oder Motorfader-Feedback wird zusätzlich ein MIDI-Ausgang benötigt.
+**Requirements:** Desktop Microsoft Edge or Google Chrome (Chromium), and a MIDI controller. A MIDI output is also required for controller feedback. Use a current browser version with Side Panel and Web MIDI support.
 
-1. ZIP-Datei herunterladen und vollständig entpacken.
-2. `edge://extensions` (Edge) oder `chrome://extensions` (Chrome) öffnen.
-3. **Entwicklermodus** aktivieren und **Entpackte Erweiterung laden** wählen.
-4. Den entpackten Projektordner auswählen, in dem `manifest.json` liegt.
-5. Die Erweiterung über das Symbol in der Symbolleiste öffnen.
+1. Download and extract the project ZIP file.
+2. Open `edge://extensions` in Edge or `chrome://extensions` in Chrome.
+3. Enable **Developer mode** and choose **Load unpacked**.
+4. Select the extracted project folder containing `manifest.json`.
+5. Open the extension from the browser toolbar.
 
-## Nutzung
+## Quick start
 
-1. Die Soundcraft-Ui-Mixer-Webseite in einem Browser-Tab öffnen.
-2. Im Side-Panel auf **MIDI verbinden** klicken. Der aktuelle HTTP(S)-Tab wird dabei automatisch als Mixer übernommen und die Browser-Berechtigung für diese Webseite bei Bedarf angefragt. Mit **Aktuellen Tab manuell als Mixer festlegen** kann das Mixer-Ziel später gewechselt werden.
-3. Beim ersten MIDI-Start öffnet sich ein Berechtigungs-Tab. Dort **MIDI-Zugriff anfragen** anklicken, anschließend zur Seitenleiste zurückkehren und erneut **MIDI verbinden** wählen.
-4. Den gewünschten **MIDI-Eingang** auswählen. Für Rückmeldungen zusätzlich einen **MIDI-Ausgang** wählen und MIDI-Feedback aktiviert lassen.
-5. Auf **Ziel wählen** klicken und anschließend das gewünschte Bedienelement im Mixer anklicken. MIDI Learn startet automatisch. Den CC-Regler/Pitch-Bend bewegen oder die MIDI-Taste drücken. Nach dem Speichern wird das nächste Mixer-Ziel zur Auswahl angeboten. Mit `Esc` wird der fortlaufende Lernmodus beendet.
-6. Zuordnungen im Bereich **Zuordnungen** verwalten. Mit **JSON exportieren** kannst du Profile sichern und später wieder importieren.
+1. Open your Soundcraft Ui mixer web interface in a browser tab.
+2. Open the extension Side Panel and click **Connect MIDI**. The current HTTP(S) tab is assigned as the mixer automatically. The browser may ask you to grant the extension access to the mixer website. To change the mixer tab later, use **Assign current tab as mixer**.
+3. On the first MIDI connection, a separate permission tab may open. Click **Request MIDI access** in that tab. Then return to the Side Panel and click **Connect MIDI** again.
+4. Select the desired **MIDI input**. To send feedback to the controller, also select a **MIDI output** and leave MIDI feedback enabled. The last selected input and output are restored when available.
+5. Click **Pick target** and then click a control in the mixer. MIDI Learn starts automatically. Move a CC control, move a Pitch Bend control, or press a MIDI button, as appropriate for the selected mixer target. After a mapping is saved, the next target can be picked. Press `Esc` to stop continuous target selection/learning.
+6. Manage saved assignments in **Mappings**. Use **Export JSON** to back up a profile; use **Import JSON** to restore one.
 
-### Nicht sichtbare Mixer-Parameter
+## Mapping controls that are not visible
 
-Den Bereich **Direktparameter-Ziel** aufklappen, den Soundcraft-Parameterschlüssel eingeben und übernehmen. Beispiele: `i.7.mix` (Input-Fader), `i.7.aux.0.value` (Aux-Send) oder `a.0.mix` (Aux-Master). Danach **MIDI Learn starten** wählen und den gewünschten MIDI-Regler bzw. die Taste bedienen.
+Expand **Direct parameter target**, enter a Soundcraft parameter key, and apply it. Examples:
 
-### Bedienoberfläche und Verbindung
+- `i.7.mix` — input fader
+- `i.7.aux.0.value` — input Aux send
+- `a.0.mix` — Aux master
 
-Die Bereiche **MIDI-Gerät**, **Mixer-Webseite** und **Zuordnungen** lassen sich unabhängig einklappen. Das Side-Panel kann über das Erweiterungssymbol geöffnet und geschlossen werden. Das Schließen der Seitenleiste beendet die MIDI-Steuerung nicht; der Hintergrunddienst läuft nur, solange ein Mixer-Tab ausgewählt ist.
+Then choose **Start MIDI Learn** and move or press the MIDI control you want to assign.
 
-## Hinweise
+## Interface and connection behavior
 
-- Die MIDI-Berechtigung gilt für die Erweiterung. Die Berechtigung für die Mixer-Webseite wird separat beim Übernehmen des Tabs erteilt.
-- Der erste MIDI-Zugriff erfolgt über den separaten Berechtigungs-Tab.
-- Die Erweiterung ist ein unabhängiges Community-Projekt und nicht mit Soundcraft oder HARMAN verbunden. Produktnamen und Marken gehören ihren jeweiligen Inhabern.
-- Browser-, Mixer-Firmware- und MIDI-Controller-Verhalten können variieren. Automatisierte Tests ersetzen keinen Test mit der eigenen Hardware.
+The **MIDI device**, **Mixer website**, and **Mappings** sections can be collapsed independently. Open or close the Side Panel using the extension toolbar button. Closing the Side Panel does not stop MIDI control. The background MIDI service runs only while a mixer tab is selected.
 
-## Controller erweitern
+## Notes and limitations
 
-Neue MIDI-Controller werden über ein eigenes Hardware-Modul und das zentrale Profilregister integriert. Die verbindliche Architektur, Schnittstellenbeschreibung, Schritt-für-Schritt-Anleitung und Test-Checkliste stehen in [`docs/ADDING_MIDI_CONTROLLERS.md`](docs/ADDING_MIDI_CONTROLLERS.md).
+- MIDI permission is granted to the extension. Permission to access the mixer website is requested separately when assigning the mixer tab.
+- The initial Web MIDI permission request is made from a separate regular browser tab because some Chromium browsers do not reliably show the permission prompt from the Side Panel.
+- Device feedback depends on the capabilities and MIDI protocol of the selected controller. The APC mini MK2 profile supports button/pad LEDs, not fader-position feedback.
+- This is an independent community project and is not affiliated with Soundcraft or HARMAN. Product names and trademarks belong to their respective owners.
+- Browser versions, mixer firmware, and MIDI hardware can behave differently. Automated tests do not replace testing with your own mixer and controller.
 
-## Entwicklung und Tests
+## Adding another MIDI controller
 
-Voraussetzung: Node.js 20 oder neuer. Es werden keine npm-Abhängigkeiten benötigt.
+Controller support is modular. The hardware protocol belongs in its own device module, while detection and capabilities are registered in the shared device-profile module. See the implementation contract and step-by-step guide in [`docs/ADDING_MIDI_CONTROLLERS.md`](docs/ADDING_MIDI_CONTROLLERS.md).
+
+## Development and tests
+
+**Requirements:** Node.js 20 or later. No npm dependencies are required.
 
 ```sh
 npm run check
 npm test
 ```
 
-## Lizenz
+## License
 
-MIT – siehe [`LICENSE`](LICENSE).
+MIT. See [`LICENSE`](LICENSE).
+
+---
+
+[Read this README in German](README.de.md).
