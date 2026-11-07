@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0-beta.2 — 2026-11-07
+
+- Set the package, extension display name, UI footer, exported mapping version and documentation to `0.6.0-beta.2`.
+- Keep the Chrome extension manifest update version at numeric `0.6.0` and expose the prerelease label through `version_name`, as required by Chromium.
+- Update the release workflow to validate prerelease tags against `package.json` and `version_name`, while checking the numeric manifest base version separately.
+- Use GitHub's `[!CAUTION]` admonition for the AI-generated-code warning in both README languages.
+
 ## 0.6.0 — 2026-11-05
 
 - Set the extension, package, UI footer and exported mapping version to `0.6.0`. No functional behavior was changed.

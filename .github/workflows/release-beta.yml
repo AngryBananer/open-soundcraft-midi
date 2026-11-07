@@ -27,13 +27,14 @@ jobs:
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           MANIFEST_VERSION="$(node -p "require('./manifest.json').version")"
           MANIFEST_VERSION_NAME="$(node -p "require('./manifest.json').version_name || ''")"
+          TAG_BASE_VERSION="${TAG_VERSION%%-*}"
 
           if [[ "$TAG_VERSION" != "$PACKAGE_VERSION" ]]; then
             echo "Tag version ($TAG_VERSION) does not match package.json ($PACKAGE_VERSION)." >&2
             exit 1
           fi
-          if [[ "$TAG_VERSION" != "$MANIFEST_VERSION" ]]; then
-            echo "Tag version ($TAG_VERSION) does not match manifest.json ($MANIFEST_VERSION)." >&2
+          if [[ "$TAG_BASE_VERSION" != "$MANIFEST_VERSION" ]]; then
+            echo "Tag base version ($TAG_BASE_VERSION) does not match numeric manifest.json version ($MANIFEST_VERSION)." >&2
             exit 1
           fi
           if [[ -n "$MANIFEST_VERSION_NAME" && "$TAG_VERSION" != "$MANIFEST_VERSION_NAME" ]]; then

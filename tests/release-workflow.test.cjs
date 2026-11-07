@@ -16,9 +16,15 @@ test('release workflow accepts stable and prerelease version tags and supports m
   assert.match(workflow, /prerelease:\s*\$\{\{ contains\(github\.ref_name, '-'\) \}\}/);
 });
 
-test('current stable version is consistent across extension metadata', () => {
-  assert.equal(packageJson.version, '0.6.0');
-  assert.equal(manifest.version, packageJson.version);
+test('extension version metadata is consistent without hardcoded release numbers', () => {
+  assert.match(
+    packageJson.version,
+    /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
+  );
+
+  const baseVersion = packageJson.version.split('-')[0];
+
+  assert.equal(manifest.version, baseVersion);
   assert.equal(manifest.version_name, packageJson.version);
 });
 
@@ -26,6 +32,7 @@ test('release workflow rejects a tag that does not match package and manifest ve
   assert.match(workflow, /TAG_VERSION=/);
   assert.match(workflow, /PACKAGE_VERSION=/);
   assert.match(workflow, /MANIFEST_VERSION=/);
+  assert.match(workflow, /TAG_BASE_VERSION=/);
   assert.match(workflow, /does not match package\.json/);
-  assert.match(workflow, /does not match manifest\.json/);
+  assert.match(workflow, /does not match numeric manifest\.json version/);
 });
