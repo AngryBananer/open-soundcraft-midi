@@ -1,9 +1,11 @@
-name: Beta release
+name: Release
 
 on:
   push:
     tags:
-      - 'v*.*.*-beta*'
+      - 'v*'
+  # Allows a maintainer to rerun the workflow by selecting the version tag.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,6 +20,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Verify tag and extension versions
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          MANIFEST_VERSION="$(node -p "require('./manifest.json').version")"
+          MANIFEST_VERSION_NAME="$(node -p "require('./manifest.json').version_name || ''")"
+
+          if [[ "$TAG_VERSION" != "$PACKAGE_VERSION" ]]; then
+            echo "Tag version ($TAG_VERSION) does not match package.json ($PACKAGE_VERSION)." >&2
+            exit 1
+          fi
+          if [[ "$TAG_VERSION" != "$MANIFEST_VERSION" ]]; then
+            echo "Tag version ($TAG_VERSION) does not match manifest.json ($MANIFEST_VERSION)." >&2
+            exit 1
+          fi
+          if [[ -n "$MANIFEST_VERSION_NAME" && "$TAG_VERSION" != "$MANIFEST_VERSION_NAME" ]]; then
+            echo "Tag version ($TAG_VERSION) does not match manifest version_name ($MANIFEST_VERSION_NAME)." >&2
+            exit 1
+          fi
       - name: Syntax and manifest checks
         run: npm run check
       - name: Unit tests
@@ -28,11 +50,11 @@ jobs:
           mkdir -p dist
           zip -r "dist/open-soundcraft-midi-${GITHUB_REF_NAME}.zip" . \
             -x '.git/*' 'dist/*' 'node_modules/*' '*.zip'
-      - name: Publish GitHub pre-release
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
           name: Open Soundcraft MIDI ${{ github.ref_name }}
           body_path: CHANGELOG.md
           files: dist/open-soundcraft-midi-${{ github.ref_name }}.zip
-          prerelease: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true

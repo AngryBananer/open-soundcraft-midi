@@ -35,9 +35,11 @@ test('Edge permission tab does not replace an already selected mixer tab', () =>
 });
 
 test('README starts with the requested AI-generated-code warning and stays focused', () => {
-  assert.match(readme, /^# Open Soundcraft MIDI\n\n> ⚠️ \*\*Warnung – KI-generierter Code:\*\*/);
-  assert.match(readme, /## Funktionen/);
+  assert.match(readme, /^# Open Soundcraft MIDI\n\n> ⚠️ \*\*AI-generated code warning:\*\*/);
+  assert.match(readme, /## Features/);
   assert.match(readme, /## Installation/);
-  assert.match(readme, /## Nutzung/);
+  assert.match(readme, /## Quick start/);
+  assert.match(readme, /\[Read this README in German\]\(README\.de\.md\)/);
+  assert.ok(fs.existsSync(path.join(root, 'README.de.md')), 'README.de.md must exist');
   assert.doesNotMatch(readme, /## Repository layout|## Troubleshooting|## Background runtime/);
 });
