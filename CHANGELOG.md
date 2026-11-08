@@ -1,11 +1,23 @@
 # Changelog
 
-## 0.6.0-beta.2 — 2026-11-07
+## 0.6.0-beta.3 — 2026-11-08
 
-- Set the package, extension display name, UI footer, exported mapping version and documentation to `0.6.0-beta.2`.
-- Keep the Chrome extension manifest update version at numeric `0.6.0` and expose the prerelease label through `version_name`, as required by Chromium.
-- Update the release workflow to validate prerelease tags against `package.json` and `version_name`, while checking the numeric manifest base version separately.
-- Use GitHub's `[!CAUTION]` admonition for the AI-generated-code warning in both README languages.
+### Fixed
+- The Side Panel now shows a distinct confirmation when MIDI Learn silently replaces an existing mapping assigned to the same MIDI message, instead of the generic "mapping saved" toast (the `replaced` flag from the background engine was computed but never actually used).
+
+### Removed (dead code / drift risk)
+- Removed `controller/controller.js`'s private copy of the `soundcraftPageBridge`/`installSoundcraftValueMonitor` mixer-page bridge. The Side Panel now loads and calls the single shared implementation in `shared/soundcraft-page-bridge.js` (already used by `background.js`), so there is only one implementation of the widget/DOM matching logic to maintain and test.
+- Removed `controller/controller.js`'s unused `createMapping()` function, left over from before MIDI Learn moved into the background Offscreen engine (0.5.0-beta.14). It was unreachable and additionally referenced two helper functions (`sameMidi`, `midiDescription`) that no longer exist in that file, so it would have thrown immediately if anything had ever called it.
+- Removed `controller/controller.js`'s unused `handlePickedTarget()` function for the same reason; target picking is handled by the background engine.
+- Removed about a dozen MIDI-port/state variables in `controller/controller.js` (`managedMidiInputs`, `midiConnectPromise`, `midiRequestInProgress`, `midiStateChangeTimer`, `midiDeviceGeneration`, `blockedMidiOutputs`, `MIDI_REQUEST_TIMEOUT_MS`, `feedbackPollRunning`, `ccToggleHigh`, `recentFeedbackEchoes`, `logCounter`) that were never read after Web MIDI ownership moved into the Offscreen engine. One of them, `midiRequestInProgress`, was still checked in `updateMidiPermissionStatusNote()` but never set, making that status branch permanently unreachable; the dead branch was removed along with the variable.
+- Removed the unused `lastPickerEventAt` timestamp and the meaningless `ready` field it produced in the content script's `PING` response (`content/soundcraft-ui.js`); no caller read that field.
+- Removed a duplicate, overridden `.mapping-feedback-colors label` CSS rule in `controller/controller.css`.
+
+No MIDI engine, mapping, or feedback behavior was intentionally changed.
+
+### Verification
+- `npm run check` and the full automated test suite pass.
+- Regression tests that evaluated the old embedded bridge copy now evaluate the shared `shared/soundcraft-page-bridge.js` implementation directly.
 
 ## 0.6.0 — 2026-11-05
 

@@ -54,7 +54,7 @@ test('saved and imported mappings replace a feedback profile that does not suppo
   assert.notEqual(loadStart, -1);
   assert.notEqual(importStart, -1);
   const loadSource = controller.slice(loadStart, controller.indexOf('\nfunction cancelLearn()', loadStart));
-  const importSource = controller.slice(importStart, controller.indexOf('\nasync function handlePickedTarget', importStart));
+  const importSource = controller.slice(importStart, controller.indexOf('\nchrome.storage.onChanged.addListener', importStart));
   assert.match(loadSource, /supportsFeedbackMode\(mapping\.feedback\.profile, mapping\.mode\)/);
   assert.ok(loadSource.indexOf('mapping.mode = mappingModeUtils') < loadSource.indexOf('supportsFeedbackMode'));
   assert.match(importSource, /supportsFeedbackMode\(mapping\.feedback\.profile, mapping\.mode\)/);

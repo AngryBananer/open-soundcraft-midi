@@ -51,7 +51,6 @@
   let pickerLanguage = 'de';
   let hoveredElement = null;
   let previousOutline = null;
-  let lastPickerEventAt = 0;
 
   function humanLabel(element) {
     const candidates = [
@@ -375,7 +374,7 @@
       return false;
     }
     if (message.type === 'PING') {
-      sendResponse({ ok: true, title: document.title, url: location.href, ready: Date.now() - lastPickerEventAt > 0 });
+      sendResponse({ ok: true, title: document.title, url: location.href });
       return false;
     }
     return false;

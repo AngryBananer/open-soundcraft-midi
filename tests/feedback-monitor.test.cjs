@@ -6,9 +6,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'controller', 'controller.js'), 'utf8');
+// installSoundcraftValueMonitor has a single implementation in shared/soundcraft-page-bridge.js,
+// loaded by both controller.html (Side Panel) and background.js (service worker).
+// Test that shared implementation directly rather than a duplicate copy.
+const source = fs.readFileSync(path.join(__dirname, '..', 'shared', 'soundcraft-page-bridge.js'), 'utf8');
 const start = source.indexOf('function installSoundcraftValueMonitor(');
-const end = source.indexOf('\nconst $ =', start);
+const end = source.indexOf('\nself.OpenSoundcraftBackgroundBridge', start);
 assert.notEqual(start, -1, 'installSoundcraftValueMonitor must exist');
 assert.notEqual(end, -1, 'monitor function end marker must exist');
 const monitorSource = source.slice(start, end).trim();

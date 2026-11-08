@@ -4,8 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// soundcraftPageBridge has a single implementation in shared/soundcraft-page-bridge.js,
+// loaded by both controller.html (Side Panel) and background.js (service worker).
+// Test that shared implementation directly rather than a duplicate copy.
 const source = fs.readFileSync(
-  path.join(__dirname, '..', 'controller', 'controller.js'),
+  path.join(__dirname, '..', 'shared', 'soundcraft-page-bridge.js'),
   'utf8'
 );
 const start = source.indexOf('function soundcraftPageBridge(');
