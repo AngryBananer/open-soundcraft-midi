@@ -4,7 +4,12 @@
 // service worker's own executeScript calls). We reference the single shared
 // implementation here instead of keeping a second, independently maintained
 // copy in sync by hand.
-const soundcraftPageBridge = window.OpenSoundcraftBackgroundBridge && window.OpenSoundcraftBackgroundBridge.soundcraftPageBridge;
+// NOTE: this is intentionally NOT named `soundcraftPageBridge` - that name is
+// already a global function declaration from shared/soundcraft-page-bridge.js
+// (loaded as a classic <script> before this file in controller.html), and a
+// `const`/`let` cannot redeclare a name that already exists as a global
+// function declaration in the same scope (throws "already been declared").
+const soundcraftPageBridgeFn = window.OpenSoundcraftBackgroundBridge && window.OpenSoundcraftBackgroundBridge.soundcraftPageBridge;
 
 const $ = (id) => document.getElementById(id);
 const IS_SIDE_PANEL = document.body.classList.contains('side-panel');
@@ -730,7 +735,7 @@ async function refreshMappingLabels() {
     for (const [tabId, group] of browserGroups) {
       try {
         const resultList = await chrome.scripting.executeScript({
-          target: { tabId }, world: 'MAIN', func: soundcraftPageBridge,
+          target: { tabId }, world: 'MAIN', func: soundcraftPageBridgeFn,
           args: ['labels', { targets: group.map((mapping) => ({ id: mapping.id, target: mapping.target })), language: currentLanguage }]
         });
         const labels = resultList?.[0]?.result;

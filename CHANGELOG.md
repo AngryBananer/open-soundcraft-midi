@@ -3,6 +3,7 @@
 ## 0.6.0-beta.3 — 2026-11-08
 
 ### Fixed
+- Fixed a Side Panel crash introduced earlier in this release: `controller.html` now loads `shared/soundcraft-page-bridge.js`, which declares a global `function soundcraftPageBridge(...)`. `controller.js` had its own top-level `const soundcraftPageBridge = ...` of the same name, which browsers reject as `Uncaught SyntaxError: Identifier 'soundcraftPageBridge' has already been declared` once two `<script>` tags share a global scope. Renamed the Side Panel's local reference to `soundcraftPageBridgeFn`. Added `tests/controller-html-script-collisions.test.cjs`, which resolves every local `<script src>` in `controller.html` in document order and fails if any top-level identifier is declared in more than one of them, so this class of bug is caught automatically going forward.
 - The Side Panel now shows a distinct confirmation when MIDI Learn silently replaces an existing mapping assigned to the same MIDI message, instead of the generic "mapping saved" toast (the `replaced` flag from the background engine was computed but never actually used).
 
 ### Removed (dead code / drift risk)
