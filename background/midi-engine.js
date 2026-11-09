@@ -260,8 +260,16 @@ function describeMidi(message) {
 async function handleMidiMessage(message, input) {
   if (!message) return;
   sendPanel('ENGINE_MIDI_EVENT', { input, message, description: describeMidi(message) });
-  if (isFeedbackEcho(message)) return;
-  if (learningArmed && pendingTarget) {
+  // `echo` only gates whether this message is allowed to *trigger an action*
+  // (MIDI Learn, applying a mapping). It must NOT skip CC toggle edge
+  // tracking below: a button's own release can legitimately carry the same
+  // value (0) as the feedback we just sent for its new "off" state, so it
+  // can look exactly like our own echo within the short anti-echo window.
+  // If we also skipped updating state for it, the button's internal
+  // pressed/released state would get stuck "pressed", silently swallowing
+  // its next real press (observed as "every third press does nothing").
+  const echo = isFeedbackEcho(message);
+  if (!echo && learningArmed && pendingTarget) {
     if (message.kind === 'cc' || (message.kind === 'note' && message.pressed) || message.kind === 'pitchbend') {
       await createLearnedMapping(message);
     }
@@ -270,14 +278,16 @@ async function handleMidiMessage(message, input) {
   for (const mapping of mappings) {
     if (mapping.enabled === false || !sameMidi(mapping, message)) continue;
     let shouldApply = false;
-    if (mapping.mode === 'fader') shouldApply = message.kind === 'cc' || message.kind === 'pitchbend';
-    else if (mapping.mode === 'toggle') {
-      if (message.kind === 'note') shouldApply = message.pressed;
-      else if (message.kind === 'cc') {
+    if (mapping.mode === 'fader') {
+      shouldApply = !echo && (message.kind === 'cc' || message.kind === 'pitchbend');
+    } else if (mapping.mode === 'toggle') {
+      if (message.kind === 'note') {
+        shouldApply = !echo && message.pressed;
+      } else if (message.kind === 'cc') {
         const previous = ccToggleHigh.get(mapping.id) === true;
         const current = message.value >= 64;
         ccToggleHigh.set(mapping.id, current);
-        shouldApply = current && !previous;
+        shouldApply = !echo && current && !previous;
       }
     }
     if (shouldApply) void applyMapping(mapping, message);
